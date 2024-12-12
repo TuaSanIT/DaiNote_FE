@@ -106,7 +106,7 @@ export default {
     methods: {
         async fetchTransactions() {
             try {
-                const response = await axios.get("http://localhost:5141/api/Admin/get-filtered-transactions");
+                const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/get-filtered-transactions`);
                 this.transactions = response.data.transactions || [];
                 this.filteredTransactions = this.transactions;
                 console.log(response.data.transactions);

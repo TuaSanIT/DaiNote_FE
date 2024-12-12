@@ -1,7 +1,7 @@
 import * as signalR from '@microsoft/signalr';
 
 const connection = new signalR.HubConnectionBuilder()
-  .withUrl('http://localhost:5141/hubs/chat', {
+  .withUrl(`${process.env.VUE_APP_API_BASE_URL}/hubs/chat`, {
     withCredentials: true,
   })
   .configureLogging(signalR.LogLevel.Information)

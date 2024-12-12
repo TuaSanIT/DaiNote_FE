@@ -70,7 +70,7 @@
       // Load danh sách phòng chat
       async loadChatRooms() {
         try {
-          const response = await fetch('http://localhost:5141/api/chatroom/get-chat-rooms');
+          const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chatroom/get-chat-rooms`);
           if (response.ok) {
             this.chatRooms = await response.json();
           } else {
@@ -84,7 +84,7 @@
       // Load danh sách người dùng
       async loadUsers() {
         try {
-          const response = await fetch('http://localhost:5141/api/user');
+          const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/user`);
           if (response.ok) {
             this.users = await response.json();
           } else {
@@ -100,7 +100,7 @@
         if (!this.newRoomName) return;
   
         try {
-          const response = await fetch('http://localhost:5141/api/chatroom/create-chat-room', {
+          const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chatroom/create-chat-room`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: this.newRoomName }),
@@ -125,7 +125,7 @@
         this.messages = [];
   
         try {
-          const response = await fetch(`http://localhost:5141/api/chat/messages?roomId=${roomId}`);
+          const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/messages?roomId=${roomId}`);
           if (response.ok) {
             this.messages = await response.json();
           } else {
@@ -144,7 +144,7 @@
   
         try {
           const response = await fetch(
-            `http://localhost:5141/api/chatprivate/messages?senderUserId=YOUR_USER_ID&receiverUserId=${userId}`
+            `${process.env.VUE_APP_API_BASE_URL}/api/chatprivate/messages?senderUserId=YOUR_USER_ID&receiverUserId=${userId}`
           );
           if (response.ok) {
             this.messages = await response.json();

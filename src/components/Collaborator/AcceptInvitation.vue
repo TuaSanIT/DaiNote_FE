@@ -47,7 +47,7 @@ export default {
 
       try {
         const response = await axios.get(
-          `http://localhost:5141/api/collaborator/check-user-in-board`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/collaborator/check-user-in-board`,
           {
             params: {
               code: this.code,
@@ -81,7 +81,7 @@ export default {
 
       try {
         const response = await axios.get(
-          `http://localhost:5141/api/collaborator/invitation-info?code=${this.code}&userId=${userId}`
+          `${process.env.VUE_APP_API_BASE_URL}/api/collaborator/invitation-info?code=${this.code}&userId=${userId}`
         );
         this.invitation = response.data;
         console.log(this.invitation.boardName);
@@ -102,7 +102,7 @@ export default {
       const userId = localStorage.getItem("userId");
       try {
         await axios.post(
-          "http://localhost:5141/api/collaborator/accept-invitation",
+          `${process.env.VUE_APP_API_BASE_URL}/api/collaborator/accept-invitation`,
           null,
           {
             params: {
@@ -140,7 +140,7 @@ export default {
 
         console.log(userId)
         // Gửi yêu cầu logout tới server cùng với `userId`
-        await axios.post(`http://localhost:5141/api/auth/logout?userId=${userId}`);
+        await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/logout?userId=${userId}`);
 
         // Xóa session token từ localStorage và cookie
         localStorage.removeItem("token");

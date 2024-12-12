@@ -114,7 +114,7 @@ export default {
       }
 
       try {
-        const response = await axios.get(`http://localhost:5141/api/board/${this.boardId}`, {
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/board/${this.boardId}`, {
           headers: { "UserId": userId },
         });
 
@@ -150,7 +150,7 @@ export default {
       try {
         const updatedData = { name: this.boardTitle, status: this.boardStatus || "Active" };
 
-        await axios.put(`http://localhost:5141/api/board/${this.boardId}`, updatedData, {
+        await axios.put(`${process.env.VUE_APP_API_BASE_URL}/api/board/${this.boardId}`, updatedData, {
           headers: { "UserId": userId },
         });
 
@@ -166,7 +166,7 @@ export default {
             };
 
             await axios.post(
-              "http://localhost:5141/api/collaborator/invite",
+              `${process.env.VUE_APP_API_BASE_URL}/api/collaborator/invite`,
               invitationData
             );
 
@@ -206,7 +206,7 @@ export default {
       }
 
       try {
-        await axios.delete(`http://localhost:5141/api/board/${this.boardId}`, {
+        await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/board/${this.boardId}`, {
           headers: { "UserId": userId },
         });
 
@@ -236,7 +236,7 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:5141/api/collaborator/check",
+          `${process.env.VUE_APP_API_BASE_URL}/api/collaborator/check`,
           {
             email,
             boardId: this.boardId,

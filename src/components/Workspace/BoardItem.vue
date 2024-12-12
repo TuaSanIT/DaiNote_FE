@@ -116,7 +116,7 @@ export default {
       }
 
       try {
-        await axios.delete(`http://localhost:5141/api/board/${boardId}`, {
+        await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/board/${boardId}`, {
           headers: {
             UserId: localStorage.getItem("userId"),
           },
@@ -152,7 +152,7 @@ export default {
       }
 
       try {
-        await axios.put(`http://localhost:5141/api/board/${boardId}`, this.updateBoardDto, {
+        await axios.put(`${process.env.VUE_APP_API_BASE_URL}/api/board/${boardId}`, this.updateBoardDto, {
           headers: {
             UserId: localStorage.getItem("userId"),
           },

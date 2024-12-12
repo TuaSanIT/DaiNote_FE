@@ -130,7 +130,7 @@ export default {
         if (this.usersStartDate) params.startDate = this.usersStartDate;
         if (this.usersEndDate) params.endDate = this.usersEndDate;
 
-        const response = await axios.get(`http://localhost:5141/api/Admin/user-statistics`, { params });
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/user-statistics`, { params });
         const { totalUsers, activeUsers, vipUsers } = response.data;
 
         // Transform the response for Chart.js
@@ -187,7 +187,7 @@ export default {
     },
     async fetchTaskComparisonData() {
       try {
-        const response = await axios.get("http://localhost:5141/api/Admin/tasks-monthly-growth");
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/tasks-monthly-growth`);
         this.taskComparisonData = response.data;
         this.initializeTaskComparisonChart();
       } catch (error) {
@@ -273,7 +273,7 @@ export default {
     },
     async fetchNoteComparisonData() {
       try {
-        const response = await axios.get("http://localhost:5141/api/Admin/notes-monthly-growth");
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/notes-monthly-growth`);
         this.noteComparisonData = response.data;
         this.initializeNoteComparisonChart();
       } catch (error) {
@@ -327,7 +327,7 @@ export default {
 
     async fetchEarningsData() {
       try {
-        const response = await axios.get("http://localhost:5141/api/Admin/earnings-monthly-growth");
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/earnings-monthly-growth`);
         this.earningsData = response.data;
         this.initializeEarningsComparisonChart();
       } catch (error) {

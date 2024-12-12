@@ -219,7 +219,7 @@ export default {
     async fetchCollaborators() {
       try {
         const response = await axios.get(
-          `http://localhost:5141/api/Collaborator/${this.boardId}`
+          `${process.env.VUE_APP_API_BASE_URL}/api/Collaborator/${this.boardId}`
         );
         this.collaborators = response.data;
 
@@ -280,7 +280,7 @@ export default {
         }
 
         await axios.put(
-          `http://localhost:5141/api/task/${this.taskData.id}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/task/${this.taskData.id}`,
           formData,
           {
             headers: {
@@ -303,7 +303,7 @@ export default {
       if (confirm("Do you want to delete this task?")) {
         try {
           await axios.delete(
-            `http://localhost:5141/api/task/${this.taskData.id}`
+            `${process.env.VUE_APP_API_BASE_URL}/api/task/${this.taskData.id}`
           );
           this.$emit("taskDeleted", this.taskData.id);
           this.$emit("closeForm");

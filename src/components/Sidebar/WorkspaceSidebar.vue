@@ -132,7 +132,7 @@ export default {
     async fetchWorkspaces() {
       try {
         const userId = localStorage.getItem("userId");
-        const response = await axios.get(`http://localhost:5141/api/workspace/user/${userId}`, {
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/workspace/user/${userId}`, {
           headers: { UserId: userId },
         });
 
@@ -153,7 +153,7 @@ export default {
       }
 
       try {
-        const response = await axios.get(`http://localhost:5141/api/user/${userId}`);
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/user/${userId}`);
         if (response.data) {
           console.log(response.data);
           this.username = response.data.userName || 'User';
@@ -186,7 +186,7 @@ export default {
         }
 
         const response = await axios.get(
-          `http://localhost:5141/api/workspace/${this.workspaceId}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/workspace/${this.workspaceId}`,
           {
             headers: {
               "UserId": userId,
@@ -232,7 +232,7 @@ export default {
 
         console.log(userId)
         // Gửi yêu cầu logout tới server cùng với `userId`
-        await axios.post(`http://localhost:5141/api/auth/logout?userId=${userId}`);
+        await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/logout?userId=${userId}`);
 
         // Xóa session token từ localStorage và cookie
         localStorage.removeItem("token");

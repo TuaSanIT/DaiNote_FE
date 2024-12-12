@@ -81,7 +81,7 @@ export default {
       try {
         const avatarPromises = this.assignedUsers.map(async (userId) => {
           const response = await axios.get(
-            `http://localhost:5141/api/user/${userId}`
+            `${process.env.VUE_APP_API_BASE_URL}/api/user/${userId}`
           );
           return response.data.avatarImage || null;
         });
@@ -95,7 +95,7 @@ export default {
     async fetchTask() {
       try {
         const response = await axios.get(
-          `http://localhost:5141/api/task/${this.id}`
+          `${process.env.VUE_APP_API_BASE_URL}/api/task/${this.id}`
         );
         this.$emit("taskSelected", response.data);
       } catch (error) {

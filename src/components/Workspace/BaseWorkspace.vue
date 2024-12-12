@@ -107,7 +107,7 @@ export default {
       this.isLoading = true;
       try {
         // Fetch boards from workspace API
-        const response = await axios.get(`http://localhost:5141/api/workspace/${this.workspaceId}`, {
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/workspace/${this.workspaceId}`, {
           headers: {
             UserId: localStorage.getItem("userId"), // Include UserId in the headers
           },
@@ -169,7 +169,7 @@ export default {
         }
 
         const response = await axios.post(
-          `http://localhost:5141/api/board/${this.workspaceId}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/board/${this.workspaceId}`,
           {
             Name: trimmedName,
             Status: this.newBoardStatus || "Active",

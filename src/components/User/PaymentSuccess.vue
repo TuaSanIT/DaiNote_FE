@@ -41,7 +41,7 @@ export default {
   methods: {
     async fetchVipStatus() {
       try {
-        const response = await axios.get("http://localhost:5141/api/payment/user-status", {
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/payment/user-status`, {
           headers: {
             UserId: localStorage.getItem("userId"),
           },

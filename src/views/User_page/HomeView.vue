@@ -252,7 +252,7 @@ export default defineComponent({
 
       this.isLoading = true;
       try {
-        await axios.post('http://localhost:5141/api/SupportMail/send', mailRequest);
+        await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/SupportMail/send`, mailRequest);
         toast.success('Email sent successfully!');
         this.name = '';
         this.email = '';
@@ -277,7 +277,7 @@ export default defineComponent({
       if (token && userId) {
         // Kiểm tra tính hợp lệ của token
         try {
-          const response = await this.$axios.get("http://localhost:5141/api/auth/validate-token", {
+          const response = await this.$axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/auth/validate-token`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },

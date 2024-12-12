@@ -53,7 +53,7 @@ export default {
             const toast = useToast(); // Optional: Hiển thị thông báo
             try {
                 const response = await axios.post(
-                    "http://localhost:5141/api/payment/upgrade-vip",
+                    `${process.env.VUE_APP_API_BASE_URL}/api/payment/upgrade-vip`,
                     {},
                     {
                         headers: {

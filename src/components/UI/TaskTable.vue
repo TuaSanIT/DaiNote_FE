@@ -96,7 +96,7 @@ export default {
   methods: {
     async fetchTasks() {
   try {
-    const response = await axios.get(`http://localhost:5141/api/task/user/${this.userId}`);
+    const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/task/user/${this.userId}`);
     console.log('API Response:', response.data); // Log to see the structure
     // Log individual task data to inspect it
     response.data.forEach(task => {

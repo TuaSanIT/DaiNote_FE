@@ -68,7 +68,7 @@ export default {
                     name: this.workspaceData.name,
                     status: this.workspaceData.status,
                 };
-                await axios.put(`http://localhost:5141/api/workspace/${this.workspaceData.id}`, body);
+                await axios.put(`${process.env.VUE_APP_API_BASE_URL}/api/workspace/${this.workspaceData.id}`, body);
                 this.$emit('workspaceUpdated', { id: this.workspaceData.id, ...body });
                 this.$emit('closeForm');
             } catch (error) {

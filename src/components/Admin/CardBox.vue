@@ -27,10 +27,10 @@ export default {
     async fetchDashboardData() {
       try {
         // Gọi API để lấy tổng số User, Notes, và Tasks
-        const usersResponse = await axios.get("http://localhost:5141/api/Admin/get-all-users");
-        const notesResponse = await axios.get("http://localhost:5141/api/Admin/get-all-notes");
-        const tasksResponse = await axios.get("http://localhost:5141/api/Admin/get-all-tasks");
-        const transactionsResponse = await axios.get("http://localhost:5141/api/Admin/get-all-transactions");
+        const usersResponse = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/get-all-users`);
+        const notesResponse = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/get-all-notes`);
+        const tasksResponse = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/get-all-tasks`);
+        const transactionsResponse = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/get-all-transactions`);
 
         const totalAmount = transactionsResponse.data.totalPaidAmount || 0;
 

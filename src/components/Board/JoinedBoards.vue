@@ -64,7 +64,7 @@
   
         try {
           const response = await axios.get(
-            `http://localhost:5141/api/board/joined?userId=${userId}`
+            `${process.env.VUE_APP_API_BASE_URL}/api/board/joined?userId=${userId}`
           );
   
           if (response.data) {

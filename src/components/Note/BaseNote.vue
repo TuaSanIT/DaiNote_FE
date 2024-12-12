@@ -376,13 +376,13 @@ export default {
       }
       try {
         const response = await axios.get(
-          `http://localhost:5141/api/note/${userId}`
+          `${process.env.VUE_APP_API_BASE_URL}/api/note/${userId}`
         );
         this.localNotes = await Promise.all(
           response.data.map(async (note) => {
             try {
               const labelsResponse = await axios.get(
-                `http://localhost:5141/api/note/${note.id}/labels`
+                `${process.env.VUE_APP_API_BASE_URL}/api/note/${note.id}/labels`
               );
               const labels = labelsResponse.data || [];
               return { ...note, labels };
@@ -439,7 +439,7 @@ export default {
       }
       try {
         const response = await axios.get(
-          `http://localhost:5141/api/Label/user/${userId}`
+          `${process.env.VUE_APP_API_BASE_URL}/api/Label/user/${userId}`
         );
         if (Array.isArray(response.data)) {
           this.labels = response.data.map((label) => ({
@@ -465,7 +465,7 @@ export default {
       try {
         const updatedNote = { ...note, bookmark: !note.bookmark };
         await axios.put(
-          `http://localhost:5141/api/note/${note.id}/bookmarked`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/note/${note.id}/bookmarked`,
           updatedNote
         );
         const index = this.localNotes.findIndex((n) => n.id === note.id);
@@ -483,7 +483,7 @@ export default {
       try {
         if (this.isEditing) {
           await axios.put(
-            `http://localhost:5141/api/note/${this.editingNoteId}`,
+            `${process.env.VUE_APP_API_BASE_URL}/api/note/${this.editingNoteId}`,
             this.newNote
           );
           const index = this.localNotes.findIndex(
@@ -497,7 +497,7 @@ export default {
           }
         } else {
           const response = await axios.post(
-            `http://localhost:5141/api/note/${this.userId}`,
+            `${process.env.VUE_APP_API_BASE_URL}/api/note/${this.userId}`,
             this.newNote
           );
           this.localNotes.push(response.data);
@@ -512,7 +512,7 @@ export default {
     },
     async deleteNote(noteId) {
       try {
-        await axios.delete(`http://localhost:5141/api/note/${noteId}`);
+        await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/note/${noteId}`);
         this.localNotes = this.localNotes.filter((note) => note.id !== noteId);
       } catch (error) {
         console.error(
@@ -565,7 +565,7 @@ export default {
 
         // Fetch assigned labels for the note
         const assignedLabelsResponse = await axios.get(
-          `http://localhost:5141/api/note/${note.id}/labels`
+          `${process.env.VUE_APP_API_BASE_URL}/api/note/${note.id}/labels`
         );
 
         if (!Array.isArray(assignedLabelsResponse.data)) {
@@ -584,7 +584,7 @@ export default {
 
         // Fetch all available labels
         const labelsResponse = await axios.get(
-          `http://localhost:5141/api/Label/user/${this.userId}`
+          `${process.env.VUE_APP_API_BASE_URL}/api/Label/user/${this.userId}`
         );
         if (!Array.isArray(labelsResponse.data)) {
           console.error(
@@ -638,7 +638,7 @@ export default {
 
         // Fetch currently assigned labels
         const assignedLabelsResponse = await axios.get(
-          `http://localhost:5141/api/note/${noteId}/labels`
+          `${process.env.VUE_APP_API_BASE_URL}/api/note/${noteId}/labels`
         );
         const assignedLabels = assignedLabelsResponse.data.map(
           (label) => label.labelId
@@ -661,7 +661,7 @@ export default {
         // Add labels
         if (labelsToAdd.length > 0) {
           await axios.post(
-            `http://localhost:5141/api/note/${noteId}/labels/batch`,
+            `${process.env.VUE_APP_API_BASE_URL}/api/note/${noteId}/labels/batch`,
             labelsToAdd
           );
         }
@@ -669,7 +669,7 @@ export default {
         // Remove labels
         if (labelsToRemove.length > 0) {
           await axios.delete(
-            `http://localhost:5141/api/note/${noteId}/labels/batch`,
+            `${process.env.VUE_APP_API_BASE_URL}/api/note/${noteId}/labels/batch`,
             { data: labelsToRemove }
           );
         }
@@ -703,7 +703,7 @@ export default {
       }
       try {
         await axios.post(
-          `http://localhost:5141/api/label/${userId}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/label/${userId}`,
           this.newLabel
         );
         this.fetchLabels();

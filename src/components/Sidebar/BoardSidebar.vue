@@ -183,7 +183,7 @@ export default {
         }
 
         const response = await axios.get(
-          `http://localhost:5141/api/board/${this.boardId}/collaborators`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/board/${this.boardId}/collaborators`,
           {
             headers: { UserId: userId },
           }
@@ -246,7 +246,7 @@ export default {
 
       try {
         const response = await axios.get(
-          `http://localhost:5141/api/user/${userId}`
+          `${process.env.VUE_APP_API_BASE_URL}/api/user/${userId}`
         );
         if (response.data) {
           this.username = response.data.userName || "User";
@@ -269,7 +269,7 @@ export default {
         }
 
         const boardResponse = await axios.get(
-          `http://localhost:5141/api/board/${this.boardId}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/board/${this.boardId}`,
           {
             headers: {
               UserId: userId,
@@ -284,7 +284,7 @@ export default {
 
         if (isOwner) {
           const workspaceResponse = await axios.get(
-            `http://localhost:5141/api/workspace/${board.workspaceId}`,
+            `${process.env.VUE_APP_API_BASE_URL}/api/workspace/${board.workspaceId}`,
             {
               headers: {
                 UserId: userId,
@@ -351,7 +351,7 @@ export default {
 
         // console.log(userId)
         // Gửi yêu cầu logout tới server cùng với `userId`
-        await axios.post(`http://localhost:5141/api/auth/logout?userId=${userId}`);
+        await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/logout?userId=${userId}`);
 
         // Xóa session token từ localStorage và cookie
         localStorage.removeItem("token");

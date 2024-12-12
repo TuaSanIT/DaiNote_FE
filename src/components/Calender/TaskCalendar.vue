@@ -67,7 +67,7 @@ export default {
       try {
         const userEmail = this.getCookie("userEmail"); // Adjust this based on how you store the user's email
         // Prepare the API request URL with the userId, and if userEmail exists, add it as a query parameter
-        let url = `http://localhost:5141/api/task/user/${this.userId}`;
+        let url = `${process.env.VUE_APP_API_BASE_URL}/api/task/user/${this.userId}`;
         if (userEmail) {
           url += `?userEmail=${encodeURIComponent(userEmail)}`;
         }

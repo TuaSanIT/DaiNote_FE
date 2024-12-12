@@ -240,7 +240,7 @@ export default {
       const toast = useToast();
       if (confirm("Do you want to delete this List?")) {
         try {
-          await axios.delete(`http://localhost:5141/api/list/${this.listId}`);
+          await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/list/${this.listId}`);
           this.$emit("listDeleted", this.listId);
           toast.success("List deleted successfully!");
           this.getListAndTaskData();
@@ -295,7 +295,7 @@ export default {
           };
           try {
             await axios.put(
-              "http://localhost:5141/api/Task/moveTaskToListAtLastPosition",
+              `${process.env.VUE_APP_API_BASE_URL}/api/Task/moveTaskToListAtLastPosition`,
               body
             );
             // console.log(body)
@@ -318,7 +318,7 @@ export default {
           };
           try {
             await axios.put(
-              "http://localhost:5141/api/Task/moveTaskToListWithTaskId",
+              `${process.env.VUE_APP_API_BASE_URL}/api/Task/moveTaskToListWithTaskId`,
               body
             );
             // console.log(body)
@@ -346,7 +346,7 @@ export default {
             TargetListId: this.listId,
           };
           try {
-            await axios.put("http://localhost:5141/api/Task/moveTask", body);
+            await axios.put(`${process.env.VUE_APP_API_BASE_URL}/api/Task/moveTask`, body);
             // console.log(body);
             this.getListAndTaskData();
             // console.log("Task moved successfully");

@@ -104,7 +104,7 @@ export default {
   methods: {
     async fetchUsers() {
       try {
-        const response = await axios.get("http://localhost:5141/api/Admin/get-all-users");
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/get-all-users`);
         this.users = response.data.users || [];
         this.filteredUsers = this.users; // Khởi tạo danh sách lọc mặc định
       } catch (error) {

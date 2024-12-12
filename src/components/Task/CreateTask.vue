@@ -130,7 +130,7 @@ export default {
       }
       try {
         const response = await axios.post(
-          `http://localhost:5141/api/Task?listId=${this.listId}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/Task?listId=${this.listId}`,
           this.task
         );
         const task = { ...response.data, description: this.task.description };

@@ -306,7 +306,7 @@ export default {
 
       try {
         const response = await axios.get(
-          `http://localhost:5141/api/user/${userId}`
+          `${process.env.VUE_APP_API_BASE_URL}/api/user/${userId}`
         );
         if (response.data) {
           console.log(response.data);
@@ -347,7 +347,7 @@ export default {
           return;
         }
         const response = await axios.get(
-          `http://localhost:5141/api/workspace/user/${userId}`
+          `${process.env.VUE_APP_API_BASE_URL}/api/workspace/user/${userId}`
         );
         this.workspaces = response.data;
       } catch (error) {
@@ -367,7 +367,7 @@ export default {
           name: this.newWorkspace.name,
         };
         const response = await axios.post(
-          `http://localhost:5141/api/workspace`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/workspace`,
           createWorkspaceDto,
           {
             headers: {
@@ -397,7 +397,7 @@ export default {
       const toast = useToast();
       try {
         const response = await axios.put(
-          `http://localhost:5141/api/workspace/${this.currentWorkspace.id}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/workspace/${this.currentWorkspace.id}`,
           {
             name: this.currentWorkspace.name,
             status: this.currentWorkspace.status,
@@ -424,7 +424,7 @@ export default {
       const toast = useToast();
       try {
         const response = await axios.delete(
-          `http://localhost:5141/api/workspace/${this.currentWorkspace.id}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/workspace/${this.currentWorkspace.id}`,
           {
             headers: {
               UserId: this.getUserIdFromLocalStorage(),
@@ -480,7 +480,7 @@ export default {
       }
       try {
         const response = await axios.get(
-          `http://localhost:5141/api/Label/user/${userId}`
+          `${process.env.VUE_APP_API_BASE_URL}/api/Label/user/${userId}`
         );
         if (Array.isArray(response.data)) {
           this.labels = response.data.map((label) => ({
@@ -498,7 +498,7 @@ export default {
     },
     async updateLabel(id, name) {
       try {
-        await axios.put(`http://localhost:5141/api/Label/${id}`, {
+        await axios.put(`${process.env.VUE_APP_API_BASE_URL}/api/Label/${id}`, {
           Name: name,
         });
         alert("Label updated successfully!");
@@ -511,7 +511,7 @@ export default {
     async deleteLabel(id) {
       if (confirm("Are you sure you want to delete this label?")) {
         try {
-          await axios.delete(`http://localhost:5141/api/Label/${id}`);
+          await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/Label/${id}`);
           alert("Label deleted successfully!");
           await this.fetchLabels();
         } catch (error) {
@@ -551,7 +551,7 @@ export default {
 
         console.log(userId)
         // Gửi yêu cầu logout tới server cùng với `userId`
-        await axios.post(`http://localhost:5141/api/auth/logout?userId=${userId}`);
+        await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/logout?userId=${userId}`);
 
         // Xóa session token từ localStorage và cookie
         localStorage.removeItem("token");

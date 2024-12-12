@@ -87,7 +87,7 @@ export default {
         console.log("Fetching collaborators for board:", this.boardId);
 
         const response = await axios.get(
-          `http://localhost:5141/api/Board/${this.boardId}/collaborators`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/Board/${this.boardId}/collaborators`,
           { headers: { UserId: userId } }
         );
 
@@ -120,7 +120,7 @@ export default {
     async checkIfOwner() {
       try {
         const response = await axios.get(
-          `http://localhost:5141/api/board/${this.boardId}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/board/${this.boardId}`,
           {
             headers: {
               UserId: localStorage.getItem("userId"),
@@ -140,7 +140,7 @@ export default {
       try {
         console.log("Removing collaborator:", userId);
         await axios.delete(
-          `http://localhost:5141/api/Board/${this.boardId}/collaborator/${userId}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/Board/${this.boardId}/collaborator/${userId}`,
           {
             headers: { UserId: localStorage.getItem("userId") },
           }

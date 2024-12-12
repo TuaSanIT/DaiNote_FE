@@ -233,7 +233,7 @@ export default {
     async register() {
       if (!this.otpSent) {
         try {
-          const response = await axios.post(`http://localhost:5141/api/auth/register/${this.email}`);
+          const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/register/${this.email}`);
           this.otpSent = true;
           this.showNotification(response.data.message + '. OTP sent successfully. Please check your email.', 'success');
         } catch (error) {
@@ -242,7 +242,7 @@ export default {
         }
       } else if (!this.otpConfirmed) {
         try {
-          const response = await axios.post(`http://localhost:5141/api/auth/confirm-otp/${this.email}/${this.otp}`);
+          const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/confirm-otp/${this.email}/${this.otp}`);
           this.showNotification(response.data.message + '. OTP confirmed successfully', 'success');
           this.otpConfirmed = true;
         } catch (error) {
@@ -256,7 +256,7 @@ export default {
     async registerComplete() {
       const toast = useToast();
       try {
-        const response = await axios.post(`http://localhost:5141/api/auth/register-complete/${this.email}`, {
+        const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/register-complete/${this.email}`, {
           password: this.password,
           fullName: this.fullName,
           phoneNumber: this.phoneNumber,
@@ -273,7 +273,7 @@ export default {
       const toast = useToast();
       this.loading = true;
       try {
-        const response = await axios.post(`http://localhost:5141/api/auth/login`, {
+        const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/login`, {
           email: this.email,
           password: this.password,
         });
@@ -330,7 +330,7 @@ export default {
     async requestForgotPassword() {
       try {
         this.loading = true;
-        const response = await axios.post(`http://localhost:5141/api/auth/forgot-password/${this.email}`);
+        const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/forgot-password/${this.email}`);
         this.showNotification(response.data.message, 'success');
         this.forgotPasswordStep = 1; // Chuyển đến bước nhập OTP
       } catch (error) {
@@ -344,7 +344,7 @@ export default {
       try {
         this.loading = true;
         const response = await axios.post(
-          `http://localhost:5141/api/auth/verify-otp-for-password/${this.email}/${this.otp}`
+          `${process.env.VUE_APP_API_BASE_URL}/api/auth/verify-otp-for-password/${this.email}/${this.otp}`
         );
         this.showNotification(response.data.message, 'success');
         this.forgotPasswordStep = 2; // Chuyển đến bước đặt lại mật khẩu
@@ -357,7 +357,7 @@ export default {
     async resetPassword() {
       try {
         this.loading = true;
-        const response = await axios.post(`http://localhost:5141/api/auth/reset-password/${this.email}`, {
+        const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/reset-password/${this.email}`, {
           newPassword: this.newPassword,
         });
         this.showNotification(response.data.message, 'success');
@@ -399,7 +399,7 @@ export default {
       }
 
       try {
-        const response = await axios.post("http://localhost:5141/api/auth/login-google", { idToken, clientIp });
+        const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/login-google`, { idToken, clientIp });
 
         const token = response.data.token;
         const decodedToken = jwtDecode(token);

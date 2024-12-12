@@ -164,7 +164,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.meta.requiresOwnership && to.params.workspaceId) {
     const workspace = await validateOwnership(
-      "http://localhost:5141/api/workspace",
+      `${process.env.VUE_APP_API_BASE_URL}/api/workspace`,
       to.params.workspaceId
     );
     if (!workspace || workspace.userId !== userId) {
@@ -175,7 +175,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresOwnership && to.params.boardId) {
     try {
       const response = await axios.get(
-        `http://localhost:5141/api/board/${to.params.boardId}`,
+        `${process.env.VUE_APP_API_BASE_URL}/api/board/${to.params.boardId}`,
         {
           headers: {
             UserId: localStorage.getItem("userId"),

@@ -144,7 +144,7 @@ export default {
     async fetchUserData() {
       const toast = useToast();
       const userId = this.getUserIdFromCookies();
-      const response = await fetch(`http://localhost:5141/api/user/${userId}`);
+      const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/user/${userId}`);
       if (response.ok) {
         const userData = await response.json();
         this.user.username = userData.userName || "";
@@ -200,7 +200,7 @@ export default {
       if (formData.has("UserName") || formData.has("UserContact") || formData.has("AvatarImage")) {
         try {
           const response = await fetch(
-            `http://localhost:5141/api/user/editProfile/${userId}`,
+            `${process.env.VUE_APP_API_BASE_URL}/api/user/editProfile/${userId}`,
             {
               method: "PUT",
               body: formData,
@@ -254,7 +254,7 @@ export default {
       this.loading = true;
 
       try {
-        const response = await fetch(`http://localhost:5141/api/user/changePassword/${userId}`, {
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/user/changePassword/${userId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

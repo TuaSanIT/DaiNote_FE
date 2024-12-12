@@ -65,7 +65,7 @@
       async deleteWorkspace() {
         if (confirm('Do you want to delete this Workspace?')) {
           try {
-            await axios.delete(`http://localhost:5141/api/workspace/${this.workspace.id}`);
+            await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/api/workspace/${this.workspace.id}`);
             this.$emit('workspaceDeleted', this.workspace.id);
           } catch (error) {
             console.error('Error deleting workspace:', error);

@@ -73,7 +73,7 @@ export default {
             }
             try {
                 console.log('Updating list:', this.listData);
-                await axios.put(`http://localhost:5141/api/list/${this.listData.id}`, this.listData);
+                await axios.put(`${process.env.VUE_APP_API_BASE_URL}/api/list/${this.listData.id}`, this.listData);
                 this.$emit('listUpdated', this.listData);
                 this.$emit('closeForm');
                 toast.success("List updated successfully!");

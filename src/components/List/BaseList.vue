@@ -158,7 +158,7 @@ export default {
         }
 
         const response = await axios.get(
-          `http://localhost:5141/api/list/board/${this.boardId}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/list/board/${this.boardId}`,
           {
             headers: {
               UserId: userId,
@@ -202,7 +202,7 @@ export default {
         };
         // console.log("use POST API");
         const response = await axios.post(
-          `http://localhost:5141/api/List?boardId=${this.boardId}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/List?boardId=${this.boardId}`,
           body
         );
 
@@ -321,7 +321,7 @@ export default {
             // console.log("DraggedListId:", draggedList.id);
             // console.log("TargetListId:", targetList.id);
 
-            await axios.put("http://localhost:5141/api/list/move", {
+            await axios.put(`${process.env.VUE_APP_API_BASE_URL}/api/list/move`, {
               DraggedListId: draggedList.id,
               TargetListId: targetList.id,
             });

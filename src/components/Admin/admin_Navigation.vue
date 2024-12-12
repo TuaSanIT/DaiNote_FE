@@ -61,7 +61,7 @@ export default {
       }
 
       try {
-        const response = await axios.get(`http://localhost:5141/api/user/${userId}`);
+        const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/user/${userId}`);
         if (response && response.data) {
           this.username = response.data.userName || "User";
           this.userAvatar = response.data.avatarImage || "/default-avatar.png";
@@ -88,7 +88,7 @@ export default {
           throw new Error("User ID is missing.");
         }
         // Gửi yêu cầu logout tới server cùng với `userId`
-        await axios.post(`http://localhost:5141/api/auth/logout?userId=${userId}`);
+        await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/logout?userId=${userId}`);
 
         localStorage.clear();
         // Xóa session token từ localStorage và cookie
