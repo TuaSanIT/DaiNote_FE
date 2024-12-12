@@ -8,4 +8,14 @@ module.exports = defineConfig({
 		}
   },
 
+  devServer: {
+    proxy: {
+      '/chatHub': {
+        target: 'https://dainoteapi.azurewebsites.net', 
+        changeOrigin: true, 
+        ws: true, 
+      },
+    },
+  },
+
 })

@@ -1,8 +1,10 @@
 import * as signalR from '@microsoft/signalr';
 
 const connection = new signalR.HubConnectionBuilder()
-  .withUrl(`${process.env.VUE_APP_API_BASE_URL}/hubs/chat`, {
+  .withUrl(`${process.env.VUE_APP_API_BASE_URL}/chatHub`, {
     withCredentials: true,
+    skipNegotiation: true,
+    transport: signalR.HttpTransportType.WebSockets
   })
   .configureLogging(signalR.LogLevel.Information)
   .build();
