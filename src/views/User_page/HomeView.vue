@@ -47,28 +47,27 @@
           <v-row>
             <v-col cols="12">
               <div class="child">
-                <v-btn icon="fas fa-laptop" color="#009688" class="text-white"><i
-                    class="bi bi-check2-square"></i></v-btn>
-                <h3 class="ml-3 mt-4">Web Design</h3>
+                <v-btn icon="bi bi-journals" color="#009688" class="text-white"></v-btn>
+                <h3 class="ml-3 mt-4">Take Note</h3>
                 <p class="ml-3 mt-4 text-caption">
-                  Lorem, ipsum dolor sit amet <br />consectetur adipisicing
-                  <br />consectetur adipis
+                  Experience effortless organization<br />with our Take Note feature! Capture, save
+                  <br />and manage your notes seamlessly anytime
                 </p>
               </div>
               <div class="child">
-                <v-btn icon="fas fa-mobile-alt" color="#009688" class="text-white"></v-btn>
-                <h3 class="ml-3 mt-4">App Design</h3>
+                <v-btn icon="bi bi-file-earmark-spreadsheet-fill" color="#009688" class="text-white"></v-btn>
+                <h3 class="ml-3 mt-4">Task Management</h3>
                 <p class="ml-3 mt-4 text-caption">
-                  Lorem, ipsum dolor sit amet <br />consectetur adipisicing
-                  <br />consectetur adipis
+                  Boost productivity with our Task-Management feature!<br />Organize, prioritize and track tasks effortlessly
+                  <br />...
                 </p>
               </div>
               <div class="child">
-                <v-btn icon="fas fa-camera" color="#009688" class="text-white"></v-btn>
-                <h3 class="ml-3 mt-4">Photography</h3>
+                <v-btn icon="bi bi-chat-dots" color="#009688" class="text-white"></v-btn>
+                <h3 class="ml-3 mt-4">Chatting</h3>
                 <p class="ml-3 mt-4 text-caption">
-                  Lorem, ipsum dolor sit amet <br />consectetur adipisicing
-                  <br />consectetur adipis
+                  Stay connected with our Chat feature!<br />Chat one-on-one or in groups, make calls
+                  <br />and share files and images effortlessly.
                 </p>
               </div>
             </v-col>
@@ -83,9 +82,9 @@
             Take Note
           </v-btn>
 
-          <v-btn :color="selectedService === 'web_design' ? '#009688' : ''" class="mr-2"
-            @click="selectService('web_design')">
-            Web Design
+          <v-btn :color="selectedService === 'task_management' ? '#009688' : ''" class="mr-2"
+            @click="selectService('task_management')">
+            Task Management
           </v-btn>
 
           <v-btn :color="selectedService === 'view_calendar' ? '#009688' : ''" class="mr-2"
@@ -93,13 +92,13 @@
             View Calendar
           </v-btn>
 
-          <v-btn :color="selectedService === 'photography' ? '#009688' : ''" class="mr-2"
-            @click="selectService('photography')">
-            Photography
+          <v-btn :color="selectedService === 'collaborator' ? '#009688' : ''" class="mr-2"
+            @click="selectService('collaborator')">
+            Collaborator
           </v-btn>
 
-          <v-btn :color="selectedService === 'illustration' ? '#009688' : ''" @click="selectService('illustration')">
-            Illustration
+          <v-btn :color="selectedService === 'chatting' ? '#009688' : ''" @click="selectService('chatting')">
+            Chatting
           </v-btn>
         </div>
 
@@ -220,10 +219,10 @@ export default defineComponent({
       selectedService: 'take_note',
       images: {
         take_note: require('../../../public/Take_note.jpg'),
-        web_design: 'path/to/your/web_design_image.jpg',
+        task_management: require('../../../public/TaskManagement.jpg'),
         view_calendar: require('../../../public/View_calendar.jpg'),
-        photography: 'path/to/your/photography_image.jpg',
-        illustration: 'path/to/your/illustration_image.jpg',
+        collaborator: require('../../../public/Collaborator.jpg'),
+        chatting: 'path/to/your/illustration_image.jpg',
       }
     };
   },

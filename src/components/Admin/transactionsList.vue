@@ -24,73 +24,59 @@
                 <button class="reset-button" @click="resetFilters">Reset</button>
             </div>
 
-
             <div class="search-group">
-                <input type="text" v-model="searchQuery" placeholder="Search by OrderCode or Status" />
-                <button class="export-button" @click="exportToPDF">Export PDF</button>
+                <input type="text" v-model="quickFilter" placeholder="Search by OrderCode or Status" />
+                <button class="export-button" @click="exportToExcel">Export Excel</button>
             </div>
         </div>
 
-        <!-- Transactions Table -->
-        <table class="transaction-table">
-            <thead>
-                <tr>
-                    <th>User Info</th>
-                    <th>Order Code</th>
-                    <th>Status</th>
-                    <th>Amount</th>
-                    <th>Created At</th>
-                    <th>Paid At</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="transaction in paginatedTransactions" :key="transaction.id">
-                    <td>
-                        <div class="user-info">
-                            <img :src="transaction.user?.avatarImage || defaultAvatar" alt="Avatar" class="avatar" />
-                            <div>
-                                <p class="user-name">{{ transaction.user?.userName || "Unknown" }}</p>
-                                <p class="user-email">{{ transaction.user?.email || "N/A" }}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td>{{ transaction.orderCode }}</td>
-                    <td>{{ transaction.status }}</td>
-                    <td>{{ transaction.amount.toLocaleString() }} VNĐ</td>
-                    <td>{{ transaction.createdAt }}</td>
-                    <td>{{ transaction.paidAt || "N/A" }}</td>
-                </tr>
-            </tbody>
-
-        </table>
-
-        <!-- Pagination -->
-        <div class="pagination">
-            <button :disabled="currentPage === 1" @click="changePage(currentPage - 1)">Previous</button>
-            <span>Page {{ currentPage }} of {{ totalPages }}</span>
-            <button :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">Next</button>
+        <!-- AG Grid -->
+        <div class="ag-theme-alpine" style="height: 500px; width: 100%;">
+            <ag-grid-vue :rowData="filteredTransactions" :columnDefs="columnDefs" :defaultColDef="defaultColDef"
+                :pagination="true" :paginationPageSize="itemsPerPage" :quickFilterText="quickFilter"
+                :rowSelection="'multiple'" class="ag-theme-alpine"></ag-grid-vue>
         </div>
     </div>
 </template>
 
 <script>
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import { AgGridVue } from "ag-grid-vue3";
+import { ModuleRegistry } from 'ag-grid-community'; 
+import { ClientSideRowModelModule} from "ag-grid-community";
+import { utils, writeFile } from "xlsx";
 import axios from "axios";
 
+// Đăng ký module của AG Grid
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
+
 export default {
+    name: "TransactionList",
+    components: {
+        AgGridVue,
+    },
     data() {
         return {
             transactions: [],
             filteredTransactions: [],
-            currentPage: 1,
-            itemsPerPage: 10,
+            columnDefs: [
+                { headerName: "User Info", field: "user.userName", sortable: true, filter: true },
+                { headerName: "Order Code", field: "orderCode", sortable: true, filter: true },
+                { headerName: "Status", field: "status", sortable: true, filter: true },
+                { headerName: "Amount", field: "amount", sortable: true, filter: true },
+                { headerName: "Created At", field: "createdAt", sortable: true, filter: true },
+                { headerName: "Paid At", field: "paidAt", sortable: true, filter: true },
+            ],
+            defaultColDef: {
+                sortable: true,
+                filter: true,
+                resizable: true,
+            },
             filterCreatedFrom: "",
             filterCreatedTo: "",
             filterPaidFrom: "",
             filterPaidTo: "",
-            searchQuery: "",
-            defaultAvatar: require("../../../public/default-avatar.png"),
+            quickFilter: "",
+            itemsPerPage: 10,
         };
     },
     watch: {
@@ -98,7 +84,7 @@ export default {
         filterCreatedTo: "applyFilters",
         filterPaidFrom: "applyFilters",
         filterPaidTo: "applyFilters",
-        searchQuery: "applyFilters",
+        quickFilter: "applyFilters",
     },
     mounted() {
         this.fetchTransactions();
@@ -106,16 +92,17 @@ export default {
     methods: {
         async fetchTransactions() {
             try {
-                const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/get-filtered-transactions`);
+                const response = await axios.get(
+                    `${process.env.VUE_APP_API_BASE_URL}/api/Admin/get-filtered-transactions`
+                );
                 this.transactions = response.data.transactions || [];
-                this.filteredTransactions = this.transactions;
-                console.log(response.data.transactions);
+                this.filteredTransactions = [...this.transactions];
             } catch (error) {
                 console.error("Error fetching transactions:", error);
             }
         },
         applyFilters() {
-            let filtered = this.transactions;
+            let filtered = [...this.transactions];
 
             // Filter by CreatedAt
             if (this.filterCreatedFrom && this.filterCreatedTo) {
@@ -138,8 +125,8 @@ export default {
             }
 
             // Filter by Search Query
-            if (this.searchQuery) {
-                const query = this.searchQuery.toLowerCase();
+            if (this.quickFilter) {
+                const query = this.quickFilter.toLowerCase();
                 filtered = filtered.filter(
                     (transaction) =>
                         transaction.orderCode.toString().toLowerCase().includes(query) ||
@@ -148,80 +135,37 @@ export default {
             }
 
             this.filteredTransactions = filtered;
-            this.currentPage = 1;
         },
         resetFilters() {
             this.filterCreatedFrom = "";
             this.filterCreatedTo = "";
             this.filterPaidFrom = "";
             this.filterPaidTo = "";
-            this.searchQuery = "";
-            this.filteredTransactions = this.transactions;
-            this.currentPage = 1;
+            this.quickFilter = "";
+            this.filteredTransactions = [...this.transactions];
         },
-        changePage(page) {
-            if (page > 0 && page <= this.totalPages) {
-                this.currentPage = page;
-            }
-        },
-        exportToPDF() {
-            const doc = new jsPDF({
-                orientation: "landscape", // Xuất file nằm ngang
-                unit: "mm",
-                format: "a4",
-            });
+        exportToExcel() {
+            // Chuẩn bị dữ liệu
+            const formattedData = this.filteredTransactions.map((transaction) => ({
+                "Order Code": transaction.orderCode,
+                Status: transaction.status,
+                Amount: transaction.amount.toLocaleString() + " VNĐ",
+                "Created At": transaction.createdAt,
+                "Paid At": transaction.paidAt || "N/A",
+                "User Name": transaction.user?.userName || "Unknown",
+                "User Email": transaction.user?.email || "N/A",
+            }));
 
-            doc.text("Transaction List", 14, 10);
-
-            const tableColumns = ["Order Code", "Status", "Amount", "Created At", "Paid At", "User Name", "User Email"];
-            const tableRows = this.filteredTransactions.map((transaction) => [
-                transaction.user?.userName || "Unknown",
-                transaction.user?.email || "N/A",
-                transaction.orderCode,
-                transaction.status,
-                transaction.amount.toLocaleString() + " VNĐ",
-                transaction.createdAt,
-                transaction.paidAt || "N/A",
-            ]);
-
-            doc.autoTable({
-                startY: 20,
-                head: [tableColumns],
-                body: tableRows,
-                styles: {
-                    fontSize: 10, // Giảm kích thước chữ để hiển thị đủ dữ liệu
-                    cellPadding: 4,
-                },
-                headStyles: {
-                    fillColor: [34, 139, 230],
-                    textColor: [255, 255, 255],
-                },
-                alternateRowStyles: {
-                    fillColor: [240, 240, 240],
-                },
-            });
-
-            doc.save("Transactions_DaiNote.pdf");
-        }
-    },
-    computed: {
-        maxCreatedFrom() {
-            return this.filterCreatedTo || null;
-        },
-        maxPaidFrom() {
-            return this.filterPaidTo || null;
-        },
-        totalPages() {
-            return Math.ceil(this.filteredTransactions.length / this.itemsPerPage);
-        },
-        paginatedTransactions() {
-            const start = (this.currentPage - 1) * this.itemsPerPage;
-            const end = start + this.itemsPerPage;
-            return this.filteredTransactions.slice(start, end);
+            // Xuất file Excel
+            const worksheet = utils.json_to_sheet(formattedData);
+            const workbook = utils.book_new();
+            utils.book_append_sheet(workbook, worksheet, "Transactions");
+            writeFile(workbook, "Transactions.xlsx");
         },
     },
 };
 </script>
+
 <style scoped>
 .transaction-list {
     position: absolute;
@@ -394,5 +338,10 @@ h2 {
     font-size: 14px;
     font-weight: 500;
     color: #495057;
+}
+
+.ag-theme-alpine {
+    height: 500px;
+    width: 100%;
 }
 </style>
