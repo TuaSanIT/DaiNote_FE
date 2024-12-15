@@ -17,7 +17,7 @@ import axios from "axios";
 export default {
   data() {
     return {
-      cards: [], // Ban đầu trống, sẽ được cập nhật từ API
+      cards: [], 
     };
   },
   mounted() {
@@ -26,7 +26,6 @@ export default {
   methods: {
     async fetchDashboardData() {
       try {
-        // Gọi API để lấy tổng số User, Notes, và Tasks
         const usersResponse = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/get-all-users`);
         const notesResponse = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/get-all-notes`);
         const tasksResponse = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/get-all-tasks`);
@@ -34,7 +33,6 @@ export default {
 
         const totalAmount = transactionsResponse.data.totalPaidAmount || 0;
 
-        // Cập nhật dữ liệu cards từ API
         this.cards = [
           {
             numbers: usersResponse.data.totalUsers || 0,
@@ -79,15 +77,15 @@ export default {
   border-radius: 20px;
   display: flex;
   flex-direction: column;
-  /* Chuyển nội dung theo cột */
+  
   align-items: center;
-  /* Căn giữa theo chiều ngang */
+  
   justify-content: center;
-  /* Căn giữa theo chiều dọc */
+  
   box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
   transition: background 0.3s, color 0.3s;
   text-align: center;
-  /* Đảm bảo văn bản nằm giữa */
+  
 }
 
 .card:hover {
@@ -103,12 +101,12 @@ export default {
 .card .cardName {
   font-size: 1.1rem;
   margin-top: 10px;
-  /* Khoảng cách nhỏ giữa số và tên */
+  
 }
 
 .card .iconBx {
   margin-top: 20px;
-  /* Khoảng cách giữa icon và số */
+  
 }
 
 .card .iconBx ion-icon {

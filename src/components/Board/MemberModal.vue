@@ -159,7 +159,7 @@ export default {
 </script>
 
 <style scoped>
-/* Modal Overlay */
+
 .modal {
   position: fixed;
   top: 0;
@@ -170,12 +170,12 @@ export default {
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.7);
-  /* Tối màu nền */
+  
   z-index: 1000;
   padding: 10px;
 }
 
-/* Modal Content */
+
 .modal-content {
   background: #ffffff;
   padding: 20px;
@@ -187,7 +187,7 @@ export default {
   flex-direction: column;
 }
 
-/* Modal Header */
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -216,13 +216,13 @@ export default {
   color: #555;
 }
 
-/* Member List */
+
 .member-list {
   list-style: none;
   padding: 0;
   margin: 0;
   max-height: 300px;
-  /* Giới hạn chiều cao */
+  
   overflow-y: auto;
 }
 
@@ -261,7 +261,7 @@ export default {
   color: #aaa;
 }
 
-/* Avatar */
+
 .avatar {
   width: 50px;
   height: 50px;
@@ -269,7 +269,7 @@ export default {
   border: 2px solid #ddd;
 }
 
-/* Remove Button */
+
 .remove-btn {
   background: #ff4d4f;
   color: white;
@@ -285,7 +285,7 @@ export default {
   background: #d9363e;
 }
 
-/* Modal Footer */
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;

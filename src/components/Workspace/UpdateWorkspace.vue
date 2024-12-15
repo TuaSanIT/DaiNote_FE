@@ -63,7 +63,7 @@ export default {
             }
             try {
                 console.log('Updating workspace:', this.workspaceData);
-                // Assuming your API expects the `Status` field as part of the request body
+
                 const body = {
                     name: this.workspaceData.name,
                     status: this.workspaceData.status,
@@ -92,7 +92,7 @@ export default {
 }
 
 .workspace-form.show .form-container {
-    display: block; /* Show the form container when the form is shown */
+    display: block; 
 }
 
 .form-container {
@@ -104,7 +104,7 @@ export default {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: relative;
     color: white;
-    transition: transform 0.5s ease; /* Slide down effect */
+    transition: transform 0.5s ease; 
 }
 
 .form-container h3 {

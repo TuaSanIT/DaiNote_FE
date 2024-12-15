@@ -15,9 +15,9 @@ import 'vuestic-ui/css'; //Admin
 
 
 
-// import '@fullcalendar/common/main.min.css';
-// import '@fullcalendar/daygrid/main.min.css';
-// import '@fullcalendar/timegrid/main.min.css';
+
+
+
 
 import { loadFonts } from './plugins/webfontloader';
 

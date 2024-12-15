@@ -46,7 +46,7 @@ import { ClientSideRowModelModule} from "ag-grid-community";
 import { utils, writeFile } from "xlsx";
 import axios from "axios";
 
-// Đăng ký module của AG Grid
+
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 export default {
@@ -104,7 +104,7 @@ export default {
         applyFilters() {
             let filtered = [...this.transactions];
 
-            // Filter by CreatedAt
+
             if (this.filterCreatedFrom && this.filterCreatedTo) {
                 const createdFrom = new Date(this.filterCreatedFrom);
                 const createdTo = new Date(this.filterCreatedTo);
@@ -114,7 +114,7 @@ export default {
                 });
             }
 
-            // Filter by PaidAt
+
             if (this.filterPaidFrom && this.filterPaidTo) {
                 const paidFrom = new Date(this.filterPaidFrom);
                 const paidTo = new Date(this.filterPaidTo);
@@ -124,7 +124,7 @@ export default {
                 });
             }
 
-            // Filter by Search Query
+
             if (this.quickFilter) {
                 const query = this.quickFilter.toLowerCase();
                 filtered = filtered.filter(
@@ -145,7 +145,7 @@ export default {
             this.filteredTransactions = [...this.transactions];
         },
         exportToExcel() {
-            // Chuẩn bị dữ liệu
+
             const formattedData = this.filteredTransactions.map((transaction) => ({
                 "Order Code": transaction.orderCode,
                 Status: transaction.status,
@@ -156,7 +156,7 @@ export default {
                 "User Email": transaction.user?.email || "N/A",
             }));
 
-            // Xuất file Excel
+
             const worksheet = utils.json_to_sheet(formattedData);
             const workbook = utils.book_new();
             utils.book_append_sheet(workbook, worksheet, "Transactions");

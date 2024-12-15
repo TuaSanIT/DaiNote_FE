@@ -140,9 +140,9 @@ export default {
       workspaceLink: "",
       boards: [],
       memberCount: 0,
-      isUserSettingsOpen: false, // State for UserEditPopup
-      isBoardSettingsOpen: false, // State for SettingsBoardModal
-      isMemberModalOpen: false, // State for Member Modal
+      isUserSettingsOpen: false, 
+      isBoardSettingsOpen: false, 
+      isMemberModalOpen: false, 
       isSidebarOpen: true,
       isOwner: false,
       username: "User",
@@ -162,7 +162,7 @@ export default {
     this.fetchBoardAndWorkspaceData();
   },
   watch: {
-    boardId: "fetchBoardAndWorkspaceData", // Watch for changes to boardId
+    boardId: "fetchBoardAndWorkspaceData", 
   },
 
   methods: {
@@ -171,7 +171,7 @@ export default {
     },
     toggleSidebar() {
       this.isSidebarOpen = !this.isSidebarOpen;
-      this.$emit("toggleSidebar", this.isSidebarOpen); // Emit state
+      this.$emit("toggleSidebar", this.isSidebarOpen); 
     },
     async fetchMemberCount() {
       try {
@@ -201,9 +201,6 @@ export default {
           );
 
           this.isOwner = isOwner;
-
-          // console.log("Filtered Collaborators:", this.collaborators);
-          // console.log("Is current user owner:", isOwner);
         } else {
           this.memberCount = 0;
           this.collaborators = [];
@@ -304,11 +301,9 @@ export default {
     },
     getUserIdFromCookies() {
       const value = `; ${document.cookie}`;
-      const parts = value.split(`; userId=`); // Replace 'userId' with the actual cookie name
+      const parts = value.split(`; userId=`); 
       if (parts.length === 2) return parts.pop().split(";").shift();
     },
-
-    // User Settings Modal
     openUserSettings() {
       this.isUserSettingsOpen = true;
     },
@@ -316,15 +311,12 @@ export default {
       this.isUserSettingsOpen = false;
     },
 
-    // Board Settings Modal
     openBoardSettings() {
       this.isBoardSettingsOpen = true;
     },
     closeBoardSettings() {
       this.isBoardSettingsOpen = false;
     },
-
-    // Member Modal (List Collaborator)
     openMemberModal() {
       this.isMemberModalOpen = true;
     },
@@ -332,7 +324,7 @@ export default {
       this.isMemberModalOpen = false;
     },
 
-    //Vip member Update
+
     openUpgradePopup() {
       this.isUpgradePopupOpen = true;
     },
@@ -342,23 +334,15 @@ export default {
 
     async logout() {
       try {
-        // Lấy `userId` từ localStorage
         const userId = localStorage.getItem("userId");
 
         if (!userId) {
           throw new Error("User ID is missing.");
         }
-
-        // console.log(userId)
-        // Gửi yêu cầu logout tới server cùng với `userId`
         await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/logout?userId=${userId}`);
-
-        // Xóa session token từ localStorage và cookie
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
         document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-
-        // Hiển thị thông báo và điều hướng tới trang login
         this.showNotification("Logged out successfully!", "success");
         this.$router.push("/login");
       } catch (err) {
@@ -394,7 +378,7 @@ export default {
 
 .sidebar {
   position: fixed;
-  /* top: 60px; */
+  
   top: 0px;
   left: 0;
   bottom: 0;
@@ -413,8 +397,6 @@ export default {
   justify-content: center;
   height: 80px;
   margin-bottom: 20px;
-
-  /* Override the padding of the sidebar */
   margin-left: -20px;
   margin-right: -20px;
   margin-top: -20px;
@@ -535,7 +517,7 @@ export default {
   background-color: #595e69;
 }
 
-/* Avatar */
+
 .user-nav {
   position: absolute;
   bottom: 0;
@@ -561,11 +543,11 @@ export default {
   display: flex;
   align-items: center;
   word-wrap: break-word;
-  /* Break long words and wrap text to the next line */
+  
   word-break: break-word;
-  /* Ensure long words are broken and don't overflow */
+  
   white-space: normal;
-  /* Allow wrapping of text */
+  
 }
 
 .user-img {

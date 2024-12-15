@@ -62,7 +62,7 @@ export default {
                     }
                 );
                 if (response.data.checkoutUrl) {
-                    // Điều hướng đến liên kết thanh toán
+
                     window.location.href = response.data.checkoutUrl;
                 } else {
                     toast.error("Failed to create payment link.");
@@ -147,7 +147,7 @@ export default {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     word-wrap: break-word;
     justify-content: space-between;
-    /* Đảm bảo các phần tử trong thẻ cách đều */
+    
 }
 
 .plan-card:hover {
@@ -203,17 +203,17 @@ export default {
     color: #ffffff;
     line-height: 1.5;
     text-align: left;
-    /* Đảm bảo văn bản được căn trái */
+    
 }
 
 .features li i {
     font-size: 18px;
     color: white;
-    /* Màu sắc cho icon */
+    
     margin-right: 10px;
-    /* Khoảng cách giữa icon và text */
+    
     flex-shrink: 0;
-    /* Đảm bảo icon không bị co lại */
+    
 }
 
 .plan-card ul {
@@ -247,7 +247,7 @@ export default {
     font-family: "Poppins", sans-serif;
     font-size: 14px;
     margin-top: auto;
-    /* Đẩy nút xuống dưới cùng */
+    
 }
 
 .subscribe-btn:disabled {

@@ -65,7 +65,7 @@ export default {
 </script>
 
 <style scoped>
-/* Background container */
+
 .payment-container {
   display: flex;
   align-items: center;
@@ -76,7 +76,7 @@ export default {
   color: #333;
 }
 
-/* Card style */
+
 .payment-card {
   background: #ffffff;
   border-radius: 20px;
@@ -88,7 +88,7 @@ export default {
   animation: slideIn 0.8s ease-in-out;
 }
 
-/* Header section */
+
 .payment-header {
   margin-bottom: 20px;
 }
@@ -105,7 +105,7 @@ export default {
   color: #333;
 }
 
-/* Description text */
+
 .description {
   font-size: 16px;
   line-height: 1.6;
@@ -113,7 +113,7 @@ export default {
   margin-bottom: 30px;
 }
 
-/* Status message */
+
 .status-message {
   font-size: 16px;
   margin-bottom: 20px;
@@ -127,7 +127,7 @@ export default {
   color: #f44336;
 }
 
-/* Button style */
+
 .btn-homepage {
   padding: 14px 30px;
   font-size: 16px;
@@ -152,13 +152,13 @@ export default {
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* Loading message */
+
 .loading-message {
   font-size: 14px;
   color: #666;
 }
 
-/* Animation for card */
+
 @keyframes slideIn {
   from {
     opacity: 0;

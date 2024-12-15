@@ -131,7 +131,6 @@ export default {
     async logoutUser() {
       const toast = useToast();
       try {
-        // Lấy `userId` từ localStorage
         const userId = localStorage.getItem("userId");
 
         if (!userId) {
@@ -139,15 +138,12 @@ export default {
         }
 
         console.log(userId)
-        // Gửi yêu cầu logout tới server cùng với `userId`
         await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/logout?userId=${userId}`);
 
-        // Xóa session token từ localStorage và cookie
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
         document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
-        // Hiển thị thông báo và điều hướng tới trang login
         toast.success("Logged out successfully!", "success");
         this.$router.push("/login");
       } catch (err) {
@@ -166,7 +162,7 @@ export default {
       return;
     }
 
-    this.code = code; // Set the code for future use
+    this.code = code; 
     this.checkIfCollaborator();
   },
 };

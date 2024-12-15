@@ -21,7 +21,7 @@ connection.on('UpdateUsersList', (users) => {
   console.log('Connected users:', users);
 });
 
-// Start the connection
+
 async function startSignalRConnection() {
   try {
     await connection.start();

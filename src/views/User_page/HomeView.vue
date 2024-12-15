@@ -58,7 +58,8 @@
                 <v-btn icon="bi bi-file-earmark-spreadsheet-fill" color="#009688" class="text-white"></v-btn>
                 <h3 class="ml-3 mt-4">Task Management</h3>
                 <p class="ml-3 mt-4 text-caption">
-                  Boost productivity with our Task-Management feature!<br />Organize, prioritize and track tasks effortlessly
+                  Boost productivity with our Task-Management feature!<br />Organize, prioritize and track tasks
+                  effortlessly
                   <br />...
                 </p>
               </div>
@@ -229,7 +230,7 @@ export default defineComponent({
 
   methods: {
 
-    //Send mail:
+
     async submitForm() {
       const toast = useToast();
       console.log('Submit button clicked!');
@@ -270,32 +271,35 @@ export default defineComponent({
     },
 
     async navigateToLogin() {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const userId = localStorage.getItem("userId");
 
       if (token && userId) {
-        // Kiểm tra tính hợp lệ của token
         try {
-          const response = await this.$axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/auth/validate-token`, {
+          const response = await this.$axios.get(`http://localhost:5141/api/auth/validate-token`, {
             headers: {
               Authorization: `Bearer ${token}`,
+              UserId: userId, 
             },
           });
 
-          // Nếu token hợp lệ, chuyển đến homepage
-          if (response.data.isValid) {
+          if (response.data.isValid && response.data.userId === userId) {
+            console.log("Login successful. Redirecting to homepage...");
             this.$router.push("/homepage");
           } else {
+            console.error("Invalid token or userId. Logging out...");
             this.logout();
           }
         } catch (error) {
-          console.error("Token verification failed:", error);
+          console.error("Error during token validation:", error.response?.data || error.message);
           this.logout();
         }
       } else {
-        this.$router.push("/login");
+        console.warn("Missing token or userId. Redirecting to login page...");
+        this.$router.push("/homepage");
       }
     },
+
 
     showImage(imageKey) {
       this.currentImage = this.images[imageKey];

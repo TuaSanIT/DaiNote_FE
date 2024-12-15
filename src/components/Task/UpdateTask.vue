@@ -223,7 +223,7 @@ export default {
         );
         this.collaborators = response.data;
 
-        // Ensure taskData.assignedUsers contains only valid collaborators
+
         this.taskData.assignedUsers = this.taskData.assignedUsers.filter(
           (userId) =>
             this.collaborators.some(
@@ -267,9 +267,9 @@ export default {
         formData.append("status", this.taskData.status);
         formData.append("availableCheck", this.taskData.availableCheck);
 
-        // Log the JSON string for AssignedUsers
+
         const assignedUsersJson = JSON.stringify(this.taskData.assignedUsers);
-        // console.log("AssignedUsers JSON:", assignedUsersJson);
+
 
         formData.append("assignedUsers", assignedUsersJson);
 
@@ -394,17 +394,17 @@ select {
 }
 
 .task-field label {
-  width: 150px; /* adjust the width as needed */
+  width: 150px; 
 }
 
 .task-field input,
 .task-field textarea,
 .task-field select {
-  width: 70%; /* adjust the width as needed */
+  width: 70%; 
   background-color: var(--vt-c-white) !important;
   border-style: solid !important;
   border-width: 1px !important;
-  border-color: var(--vt-c-black) !important; /* Set a default border color */
+  border-color: var(--vt-c-black) !important; 
   padding: 5px;
 }
 
@@ -471,8 +471,8 @@ select {
 }
 
 .button-container .add.loading {
-  background-color: #d3d3d3; /* Grey background */
-  color: #808080; /* Grey text */
+  background-color: #d3d3d3; 
+  color: #808080; 
   cursor: not-allowed;
 }
 
@@ -484,7 +484,7 @@ select {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
-  align-items: flex-start; /* Align items at the top */
+  align-items: flex-start; 
 }
 
 .dropdown-container {
@@ -494,7 +494,7 @@ select {
 }
 
 .dropdown {
-  width: 70%; /* Match other inputs */
+  width: 70%; 
   padding: 5px;
   margin-right: 8px;
 }
@@ -520,7 +520,7 @@ select {
 }
 
 .selected-tags {
-  margin-top: 10px; /* Space between dropdown and user tags */
+  margin-top: 10px; 
   width: 100%;
 }
 
@@ -538,7 +538,7 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  /* flex: 1; */
+  
 }
 
 .user-tag .remove-tag {

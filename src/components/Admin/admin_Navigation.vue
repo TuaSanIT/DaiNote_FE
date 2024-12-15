@@ -49,14 +49,14 @@ export default {
   },
   methods: {
     navigateTo(title) {
-      this.$emit("menu-selected", title); // Gửi sự kiện ra ngoài
+      this.$emit("menu-selected", title);
     },
     async fetchUserInfo() {
       const userId = localStorage.getItem("userId");
 
       if (!userId) {
         console.error("User ID is missing.");
-        // this.$router.push("/login");
+        this.$router.push("/login");
         return;
       }
 
@@ -78,26 +78,21 @@ export default {
     },
     async signOut() {
       const toast = useToast();
-      // Hàm xử lý Sign Out
       this.$emit("sign-out");
       try {
-        // Lấy `userId` từ localStorage
         const userId = localStorage.getItem("userId");
 
         if (!userId) {
           throw new Error("User ID is missing.");
         }
-        // Gửi yêu cầu logout tới server cùng với `userId`
         await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/logout?userId=${userId}`);
 
         localStorage.clear();
-        // Xóa session token từ localStorage và cookie
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
         localStorage.removeItem("role");
         document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
-        // Hiển thị thông báo và điều hướng tới trang login
         toast.success("Logged out successfully!", "success");
         this.$router.push("/login");
       } catch (err) {
@@ -110,7 +105,7 @@ export default {
     },
   },
   mounted() {
-    this.fetchUserInfo(); // Lấy thông tin người dùng khi component được mount
+    this.fetchUserInfo(); 
   },
 };
 </script>
@@ -194,7 +189,7 @@ export default {
 }
 
 .menu-items {
-  flex-grow: 1; /* Tăng không gian cho menu để đẩy User Info xuống cuối */
+  flex-grow: 1; 
   width: 100%;
 }
 

@@ -67,7 +67,7 @@
       };
     },
     methods: {
-      // Load danh sách phòng chat
+
       async loadChatRooms() {
         try {
           const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chatroom/get-chat-rooms`);
@@ -81,7 +81,7 @@
         }
       },
   
-      // Load danh sách người dùng
+
       async loadUsers() {
         try {
           const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/user`);
@@ -95,7 +95,7 @@
         }
       },
   
-      // Tạo phòng chat mới
+
       async createChatRoom() {
         if (!this.newRoomName) return;
   
@@ -118,7 +118,7 @@
         }
       },
   
-      // Tham gia phòng chat
+
       async joinRoom(roomId) {
         this.currentRoomId = roomId;
         this.currentUserId = null; // Reset private chat
@@ -136,7 +136,7 @@
         }
       },
   
-      // Bắt đầu chat riêng tư
+
       async startPrivateChat(userId) {
         this.currentRoomId = null; // Reset group chat
         this.currentUserId = userId;
@@ -156,7 +156,7 @@
         }
       },
   
-      // Gửi tin nhắn
+
       async sendMessage() {
         if (!this.message) return;
   
@@ -175,7 +175,7 @@
         this.message = ''; // Reset message input
       },
   
-      // Gửi tin nhắn nhóm
+
       async sendGroupMessage(payload) {
         try {
           await connection.invoke('SendMessage', payload);
@@ -185,7 +185,7 @@
         }
       },
   
-      // Gửi tin nhắn riêng tư
+
       async sendPrivateMessage(payload) {
         try {
           await connection.invoke('SendPrivateMessage', payload);

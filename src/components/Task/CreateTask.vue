@@ -146,12 +146,12 @@ export default {
       this.isDarkTheme = !this.isDarkTheme; // Toggle theme state
       document.body.classList.toggle("dark-theme", this.isDarkTheme); // Toggle dark theme class on body
 
-      // Save the theme preference to local storage
+
       localStorage.setItem("theme", this.isDarkTheme ? "dark" : "light");
     },
   },
   mounted() {
-    // Check local storage for theme preference on mount
+
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
       this.isDarkTheme = true;

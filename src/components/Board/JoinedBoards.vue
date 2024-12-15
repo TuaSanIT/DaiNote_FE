@@ -44,9 +44,9 @@
     watch: {
     popupActive(newValue) {
       if (newValue) {
-        this.$el.style.zIndex = "-1"; // Lower z-index when popup is active
+        this.$el.style.zIndex = "-1"; 
       } else {
-        this.$el.style.zIndex = "1"; // Restore default z-index
+        this.$el.style.zIndex = "1"; 
       }
     },
   },
@@ -80,12 +80,11 @@
         }
       },
       openBoard(boardId) {
-        // Redirect to the board details page or perform an action
         this.$router.push(`/board-list/${boardId}`);
       },
     },
     mounted() {
-      this.fetchJoinedBoards(); // Fetch boards when the component is mounted
+      this.fetchJoinedBoards(); 
     },
   };
   </script>
@@ -93,7 +92,7 @@
   <style scoped>
   .joined-boards {
     position: relative;
-    margin-left: 350px; /* Default with sidebar open */
+    margin-left: 350px; 
     margin-right: 30px;
     padding: 20px;
     background-color: #f9f9f9;
@@ -104,11 +103,11 @@
     z-index: 1;
   }
   .popup-active {
-  z-index: -1; /* Lower z-index when popup is active */
+  z-index: -1; 
 }
 
   .collapsed-sidebar {
-    margin-left: 50px; /* Adjust content position when sidebar is collapsed */
+    margin-left: 50px; 
   }
   
   .loading {

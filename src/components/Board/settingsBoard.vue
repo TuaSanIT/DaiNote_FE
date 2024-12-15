@@ -154,7 +154,7 @@ export default {
           headers: { "UserId": userId },
         });
 
-        // Gửi lời mời
+
         if (this.collaborators.length > 0) {
           const emails = this.collaborators.map((collab) => collab.email);
 
@@ -278,7 +278,7 @@ export default {
 </script>
 
 <style scoped>
-/* Modal Overlay */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -293,7 +293,7 @@ export default {
   overflow-y: auto;
 }
 
-/* Modal Container */
+
 .modal-container {
   background: #ffffff;
   padding: 30px;
@@ -318,7 +318,7 @@ export default {
   }
 }
 
-/* Modal Header */
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -359,7 +359,7 @@ export default {
   font-weight: bold;
 }
 
-/* Form Group */
+
 .form-group {
   margin-bottom: 20px;
 }
@@ -383,7 +383,7 @@ export default {
   transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
-/* Hiệu ứng khi focus */
+
 .form-input:focus {
   border-color: #007bff;
   box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
@@ -409,7 +409,7 @@ export default {
   min-height: 80px;
 }
 
-/* Collaborator Chips */
+
 .email-input-wrapper {
   display: flex;
   flex-wrap: wrap;
@@ -464,7 +464,7 @@ export default {
   min-width: 200px;
 }
 
-/* Autocomplete */
+
 .autocomplete-list {
   position: absolute;
   top: 100%;
@@ -493,7 +493,7 @@ export default {
   color: white;
 }
 
-/* Footer */
+
 .modal-footer {
   display: flex;
   justify-content: space-between;
@@ -536,7 +536,7 @@ export default {
   background: #0056b3;
 }
 
-/* Notification */
+
 .notification {
   position: fixed;
   top: 20px;
@@ -544,7 +544,7 @@ export default {
   transform: translateX(-50%);
   padding: 15px 20px;
   background-color: #28a745;
-  /* Green for success */
+  
   color: white;
   font-size: 16px;
   border-radius: 8px;
@@ -555,10 +555,10 @@ export default {
 
 .notification.error {
   background-color: #dc3545;
-  /* Red for error */
+  
 }
 
-/* Animation */
+
 @keyframes fadeInOut {
   0% {
     opacity: 0;
@@ -587,13 +587,13 @@ export default {
   margin-top: 5px;
 }
 
-/* Media Queries for Responsiveness */
+
 @media (max-width: 768px) {
   .modal-container {
     padding: 20px;
     width: 95%;
     max-width: 600px;
-    /* Modal nhỏ hơn trên máy tính bảng */
+    
   }
 
   .modal-header h1 {
@@ -616,7 +616,7 @@ export default {
     padding: 15px;
     width: 100%;
     max-width: 400px;
-    /* Modal nhỏ hơn trên điện thoại */
+    
     border-radius: 10px;
   }
 
@@ -636,13 +636,13 @@ export default {
 
   .modal-footer {
     flex-direction: column;
-    /* Sắp xếp nút dọc trên điện thoại */
+    
     gap: 10px;
   }
 
   .btn {
     width: 100%;
-    /* Nút chiếm toàn bộ chiều ngang trên điện thoại */
+    
   }
 
   .spinner {

@@ -213,7 +213,6 @@ export default {
   },
   data() {
     return {
-      // Sidebar and User Info
       isSidebarOpen: true,
       username: "User",
       userImage:
@@ -222,28 +221,28 @@ export default {
       isVip: false,
       isUpgradePopupOpen: false,
 
-      // Workspace Data
+
       workspaces: [],
       newWorkspace: { name: "" },
       currentWorkspace: { id: null, name: "" },
       isDropdownOpenWSP: false,
       maxVisibleWorkspaces: 3,
 
-      // Label Data
+
       labels: [],
       isDropdownOpen: false,
       dropdownMaxHeight: 0,
 
-      // Modal States
+
       showCreateModal: false,
       showEditModal: false,
       showDeleteModal: false,
 
-      // Settings Modal
+
       isSettingsOpen: false,
       currentTheme: localStorage.getItem("theme") || "dark",
 
-      // Notifications
+
       notification: null,
     };
   },
@@ -258,7 +257,7 @@ export default {
       return this.workspaces.length > this.maxVisibleWorkspaces;
     },
     separatorStyle() {
-      const labelHeight = this.labels.length; // Estimate height per label
+      const labelHeight = this.labels.length;
       return this.isDropdownOpen ? { marginTop: `${labelHeight}px` } : {};
     },
   },
@@ -273,30 +272,8 @@ export default {
     },
     toggleSidebar() {
       this.isSidebarOpen = !this.isSidebarOpen;
-      this.$emit("toggleSidebar", this.isSidebarOpen); // Emit the state change
+      this.$emit("toggleSidebar", this.isSidebarOpen); 
     },
-    // setTheme(theme) {
-    //   this.currentTheme = theme;
-
-    //   if (theme === "dark") {
-    //     document.documentElement.classList.add("dark-theme");
-    //   } else {
-    //     document.documentElement.classList.remove("dark-theme");
-    //   }
-
-    //   // Save the theme preference in localStorage
-    //   localStorage.setItem("theme", theme);
-    // },
-    // initializeTheme() {
-    //   const savedTheme = localStorage.getItem("theme") || "light";
-    //   this.currentTheme = savedTheme;
-
-    //   if (savedTheme === "dark") {
-    //     document.documentElement.classList.add("dark-theme");
-    //   } else {
-    //     document.documentElement.classList.remove("dark-theme");
-    //   }
-    // },
     async fetchUserInfo() {
       const userId = this.getUserIdFromLocalStorage();
       if (!userId) {
@@ -354,8 +331,6 @@ export default {
         console.error("Error fetching workspaces:", error);
       }
     },
-
-    // Create a new workspace
     async createWorkspace() {
       const toast = useToast();
       try {
@@ -375,24 +350,19 @@ export default {
             },
           }
         );
-        this.workspaces.push(response.data); // Add the new workspace to the list
-        this.closeCreateModal(); // Close modal after creation
+        this.workspaces.push(response.data); 
+        this.closeCreateModal(); 
         await this.fetchWorkspaces();
         toast.success("Workspace created successfully!");
       } catch (error) {
-        // Xử lý lỗi từ backend
         if (error.response && error.response.data && error.response.data.message) {
-          // Hiển thị lỗi từ BE
           toast.warning(error.response.data.message);
         } else {
-          // Hiển thị lỗi mặc định nếu BE không trả về message
           toast.error("Failed to create workspace. Please try again.");
         }
         console.error("Error creating workspace:", error);
       }
     },
-
-    // Edit an existing workspace
     async updateWorkspace() {
       const toast = useToast();
       try {
@@ -443,7 +413,7 @@ export default {
       }
     },
 
-    // Open modals
+
     openCreateModal() {
       this.showCreateModal = true;
       this.$emit("popupStateChange", true);
@@ -459,10 +429,10 @@ export default {
       this.$emit("popupStateChange", true);
     },
 
-    // Close modals
+
     closeCreateModal() {
       this.showCreateModal = false;
-      this.newWorkspace.name = ""; // Reset input
+      this.newWorkspace.name = ""; 
     },
     closeEditModal() {
       this.showEditModal = false;
@@ -471,7 +441,7 @@ export default {
       this.showDeleteModal = false;
     },
 
-    // Label Management
+
     async fetchLabels() {
       const userId = this.userId || this.getUserIdFromLocalStorage();
       if (!userId) {
@@ -523,7 +493,7 @@ export default {
     toggleDropdown() {
       this.isDropdownOpen = !this.isDropdownOpen;
       this.dropdownMaxHeight = this.isDropdownOpen
-        ? this.labels.length * 45 // Adjust this to fit the height of your dropdown items
+        ? this.labels.length * 45 
         : 0;
     },
     truncateLabelName(name) {
@@ -542,7 +512,6 @@ export default {
 
     async logout() {
       try {
-        // Lấy `userId` từ localStorage
         const userId = localStorage.getItem("userId");
 
         if (!userId) {
@@ -550,16 +519,11 @@ export default {
         }
 
         console.log(userId)
-        // Gửi yêu cầu logout tới server cùng với `userId`
         await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/logout?userId=${userId}`);
-
-        // Xóa session token từ localStorage và cookie
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
         document.cookie =
           "userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-
-        // Hiển thị thông báo và điều hướng tới trang login
         this.showNotification("Logged out successfully!", "success");
         this.$router.push("/login");
       } catch (err) {
@@ -581,7 +545,6 @@ export default {
   mounted() {
     this.fetchUserInfo();
     this.fetchLabels();
-    //this.initializeTheme();
   },
 };
 </script>
@@ -591,7 +554,6 @@ export default {
 
 .sidebar {
   position: fixed;
-  /* top: 60px; */
   top: 0px;
   left: 0;
   bottom: 0;
@@ -610,7 +572,6 @@ export default {
   height: 80px;
   margin-bottom: 20px;
 
-  /* Override the padding of the sidebar */
   margin-left: -20px;
   margin-right: -20px;
   margin-top: -20px;
@@ -620,27 +581,20 @@ export default {
 .theme-toggle i,
 .theme-toggle button {
   font-size: 20px;
-  /* Adjust the size as needed */
   display: flex;
   align-items: center;
   justify-content: center;
 
   border-radius: 50%;
-  /* Makes it circular */
   background-color: #323338;
-  /* Background color */
   color: white;
-  /* Icon color */
   transition: transform 0.2s, background-color 0.3s;
-  /* Smooth effect */
 }
 
 .theme-toggle i:hover,
 .theme-toggle button:hover {
   transform: scale(1.2);
-  /* Slightly enlarge on hover */
   background-color: #4d8de4;
-  /* Change the background color on hover */
 }
 
 
@@ -708,7 +662,7 @@ export default {
   background: #f6f9ff;
 }
 
-/* Dropdown Menu Styling */
+
 .dropdown-menu {
   position: absolute;
   background-color: #fff;
@@ -719,22 +673,22 @@ export default {
   width: 100%;
   position: absolute;
   z-index: 1000;
-  /* Ensure visibility */
+  
   background-color: #fff;
   display: block;
-  /* Ensure it's displayed */
+  
   overflow: auto;
   transition: max-height 0.5s ease-in-out, opacity 0.5s ease;
   max-height: 0;
 }
 
-/* Active state for when dropdown is open */
+
 .dropdown-menu.open {
   max-height: 300px;
   opacity: 1;
 }
 
-/* Dropdown Item Styling */
+
 .dropdown-item {
   padding: 10px 20px;
   font-size: 14px;
@@ -749,7 +703,7 @@ export default {
   color: #4154f1;
 }
 
-/* Label name truncation */
+
 .label-name {
   max-width: 180px;
   overflow: hidden;
@@ -757,7 +711,7 @@ export default {
   white-space: nowrap;
 }
 
-/* Options Menu */
+
 .options-menu {
   display: flex;
   gap: 5px;
@@ -810,11 +764,11 @@ export default {
   display: flex;
   align-items: center;
   word-wrap: break-word;
-  /* Break long words and wrap text to the next line */
+  
   word-break: break-word;
-  /* Ensure long words are broken and don't overflow */
+  
   white-space: normal;
-  /* Allow wrapping of text */
+  
 }
 
 .user-img {
@@ -846,12 +800,12 @@ export default {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  /* Adds a dark overlay */
+  
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  /* Ensure it appears above other elements */
+  
 }
 
 .modal-content {
@@ -859,9 +813,9 @@ export default {
   padding: 20px;
   border-radius: 8px;
   width: 90%;
-  /* Adjust width as needed */
+  
   max-width: 500px;
-  /* Prevent it from getting too large */
+  
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -953,8 +907,8 @@ export default {
   border-radius: 4px;
   padding: 10px 0;
   list-style: none;
-  max-height: 200px; /* Chiều cao tối đa của dropdown */
-  overflow-y: auto; /* Cho phép cuộn nếu danh sách quá dài */
+  max-height: 200px; 
+  overflow-y: auto; 
   z-index: 1000;
 }
 

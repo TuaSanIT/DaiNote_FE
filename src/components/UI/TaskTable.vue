@@ -98,7 +98,7 @@ export default {
   try {
     const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/task/user/${this.userId}`);
     console.log('API Response:', response.data); // Log to see the structure
-    // Log individual task data to inspect it
+
     response.data.forEach(task => {
       console.log(task); // Check each task object
     });
@@ -162,7 +162,7 @@ export default {
 .outer-wrapper {
   background-color: var(--vt-c-white); 
   min-height: 100vh; 
-  /* display: flex;  */
+  
   padding-top: 120px; 
 }
 
@@ -173,21 +173,21 @@ export default {
   margin-left: 340px;
   padding-top: 0px ;
   width: calc(100% - 370px); 
-  /* background-color: #d9d9d9; */
+  
   background-color: var(--color-table);
   padding: 20px;
   border-radius: 10px;
-  transition: all 0.3s ease; /* Smooth transition */
+  transition: all 0.3s ease; 
   min-height: 27vh;
   height: auto;
   overflow: auto;
 
-  /* height: 47vh; */
+  
 }
 
 .task-table-container.collapsed-sidebar {
-  margin-left: 80px; /* Adjust when the sidebar is collapsed */
-  width: calc(100% - 100px); /* Adjust width */
+  margin-left: 80px; 
+  width: calc(100% - 100px); 
 }
 
 .task-table {
@@ -224,14 +224,14 @@ table {
 width: 100%;
 border-collapse: collapse;
 margin-bottom: 20px;
-text-align: center; /* Center align table text */
+text-align: center; 
 }
 
 th,
 td {
 border: 1px solid #ddd;
 padding: 8px;
-text-align: center; /* Center align table text */
+text-align: center; 
 }
 
 th {

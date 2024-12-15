@@ -7,13 +7,13 @@
   </template>
   
   <script>
-  // import BaseHeader from '../components/UI/BaseHeader.vue';
+
   import TaskCalendar from '@/components/Calender/TaskCalendar.vue';
   import HomeSideBar from '@/components/Sidebar/HomeSideBar.vue';
   
   export default {
     components: {
-      // 'base-header': BaseHeader,
+
       TaskCalendar,
       'home-sidebar': HomeSideBar,
     },

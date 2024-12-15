@@ -106,19 +106,19 @@ export default {
     async getBoards() {
       this.isLoading = true;
       try {
-        // Fetch boards from workspace API
+
         const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/workspace/${this.workspaceId}`, {
           headers: {
             UserId: localStorage.getItem("userId"), // Include UserId in the headers
           },
         });
 
-        // Assign boards data from the response
+
         this.boards = response.data.board || [];
         this.filteredBoards = this.boards;
         console.log("Boards data fetched successfully:", this.boards);
       } catch (error) {
-        // Handle various error responses
+
         if (error.response) {
           const status = error.response.status;
           const message = error.response.data?.message;

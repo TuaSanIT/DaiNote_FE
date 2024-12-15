@@ -133,7 +133,7 @@ export default {
         const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/user-statistics`, { params });
         const { totalUsers, activeUsers, vipUsers } = response.data;
 
-        // Transform the response for Chart.js
+
         this.usersData = [
           { label: "Total Users", count: totalUsers },
           { label: "Active Users", count: activeUsers },
@@ -205,19 +205,18 @@ export default {
         const ctx = canvas.getContext("2d");
 
         const { currentMonthTasks, previousMonthTasks, growthPercentage } = this.taskComparisonData;
-        // Dữ liệu biểu đồ
+
         const labels = ["Previous Month", "Current Month"];
         const taskData = [previousMonthTasks, currentMonthTasks];
-        const growthData = [0, growthPercentage]; // Growth chỉ hiển thị cho tháng hiện tại
+        const growthData = [0, growthPercentage]; 
 
-        // Tạo biểu đồ kết hợp
         new Chart(ctx, {
-          type: "bar", // Biểu đồ dạng kết hợp
+          type: "bar",
           data: {
             labels,
             datasets: [
               {
-                type: "bar", // Dạng cột cho số lượng task
+                type: "bar", 
                 label: "Tasks Created",
                 data: taskData,
                 backgroundColor: ["#FF9800", "#4CAF50"],
@@ -225,14 +224,14 @@ export default {
                 borderWidth: 1,
               },
               {
-                type: "line", // Dạng đường cho tỷ lệ tăng trưởng
+                type: "line", 
                 label: "Growth (%)",
                 data: growthData,
                 borderColor: "#FF5722",
                 backgroundColor: "#FF5722",
                 borderWidth: 2,
                 tension: 0.4,
-                yAxisID: "yGrowth", // Gắn với trục Y thứ 2
+                yAxisID: "yGrowth", 
               },
             ],
           },
@@ -257,13 +256,13 @@ export default {
               },
               yGrowth: {
                 beginAtZero: true,
-                position: "right", // Trục Y thứ 2 bên phải
+                position: "right", 
                 title: {
                   display: true,
                   text: "Growth (%)",
                 },
                 grid: {
-                  drawOnChartArea: false, // Không chồng lưới lên trục Y chính
+                  drawOnChartArea: false, 
                 },
               },
             },

@@ -1,5 +1,5 @@
-/* color palette from <https://github.com/vuejs/theme> */
-/* semantic color variables for this project */
+
+
 :root {
   --vt-c-white: #ffffff;
   --vt-c-white-soft: #f8f8f8;
@@ -23,7 +23,7 @@
 
 
   --list-item-color: #f1f2f4;
-  /* --------------- */
+  
   --color-background: var(--vt-c-white);
   --color-background-soft: var(--vt-c-white-soft);
   --color-background-mute: var(--vt-c-white-mute);
@@ -55,7 +55,7 @@
 }
 
 .dark-theme {
-  /* --color-table:var(--vt-c-black); */
+  
   --color-background: var(--vt-c-black);
   --color-background-soft: var(--vt-c-black-soft);
   --color-background-mute: var(--vt-c-black-mute);

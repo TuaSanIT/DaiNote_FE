@@ -244,7 +244,7 @@ export default {
 
 .navigate-btn i {
   color: #ffc107;
-  /* Color for the navigate button */
+  
 }
 
 .delete-btn i {

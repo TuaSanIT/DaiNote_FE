@@ -38,15 +38,8 @@ export default {
             required: true
         }
     },
-    // mounted() {
-    // this.listData = this.list;
-    // },
     data() {
         return {
-            // listData: {
-            //     title: '',
-            //     status: ''
-            // }
             listData :{...this.list}
         }
     },
@@ -104,7 +97,7 @@ export default {
 }
 
 .list-form.show .form-container {
-    display: block; /* Show the form container when the form is shown */
+    display: block; 
 }
 
 .form-container {
@@ -116,7 +109,7 @@ export default {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: relative;
     color: white;
-    transition: transform 0.5s ease; /* Slide down effect */
+    transition: transform 0.5s ease; 
 }
 
 

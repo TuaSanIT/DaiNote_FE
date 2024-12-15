@@ -121,7 +121,7 @@ const router = createRouter({
   routes,
 });
 
-// Global navigation guard
+
 router.beforeEach(async (to, from, next) => {
   const userId = localStorage.getItem("userId");
 
@@ -185,7 +185,7 @@ router.beforeEach(async (to, from, next) => {
   
       const ownershipData = response.data;
 
-      // console.log(ownershipData);
+
 
       if (!ownershipData.isOwner && !ownershipData.isEditor) {
         console.error("Permission denied for the board.");

@@ -41,15 +41,15 @@ export default {
   watch: {
     popupActive(newValue) {
       if (newValue) {
-        this.$el.style.zIndex = "-1"; // Lower z-index when popup is active
+        this.$el.style.zIndex = "-1"; 
       } else {
-        this.$el.style.zIndex = "0"; // Restore default z-index
+        this.$el.style.zIndex = "0"; 
       }
     },
   },
   mounted() {
     this.userId = this.getCookie("userId");
-    console.log("User ID from cookie:", this.userId); // Log the user ID
+    console.log("User ID from cookie:", this.userId); 
     if (this.userId) {
       this.fetchTasks();
     } else {
@@ -65,16 +65,15 @@ export default {
     },
     async fetchTasks() {
       try {
-        const userEmail = this.getCookie("userEmail"); // Adjust this based on how you store the user's email
-        // Prepare the API request URL with the userId, and if userEmail exists, add it as a query parameter
+        const userEmail = this.getCookie("userEmail"); 
         let url = `${process.env.VUE_APP_API_BASE_URL}/api/task/user/${this.userId}`;
         if (userEmail) {
           url += `?userEmail=${encodeURIComponent(userEmail)}`;
         }
 
-        // Fetch tasks from the API
+
         const response = await axios.get(url);
-        console.log("API Response:", response.data); // Log the response to inspect its structure
+        console.log("API Response:", response.data); 
         if (Array.isArray(response.data)) {
           const events = this.transformTasksToEvents(response.data);
           this.calendarOptions.events = events;
@@ -146,7 +145,7 @@ export default {
 <style scoped>
 .calendar {
   position: relative;
-  margin-left: 300px; /* Default with sidebar open */
+  margin-left: 300px; 
   margin-top: 60px;
   padding: 0 20px;
   transition: margin-left 0.3s ease, width 0.3s ease;
@@ -160,13 +159,10 @@ export default {
 }
 
 .collapsed-sidebar .calendar {
-  /* margin-left: 50px;  */
   margin-left: 0px;
   margin-top: 60px;
-  /* padding-right: 100px; */
   padding-right: 0;
   position: relative;
-  /* width: 100vw; */
   z-index: 1;
 }
 .collapsed-sidebar{

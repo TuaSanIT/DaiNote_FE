@@ -71,24 +71,24 @@ import axios from "axios";
 
 export default {
   props: {
-    currentMenu: String, // Nhận currentMenu từ parent
+    currentMenu: String, 
   },
   data() {
     return {
-      users: [], // Dữ liệu toàn bộ người dùng
-      filteredUsers: [], // Dữ liệu sau khi lọc
+      users: [], 
+      filteredUsers: [], 
       currentPage: 1,
       itemsPerPage: 10,
       defaultAvatar: require("../../../public/default-avatar.png"),
-      filterStartDate: "", // Lọc ngày bắt đầu
-      filterEndDate: "", // Lọc ngày kết thúc
-      searchQuery: "", // Tìm kiếm theo username hoặc email
-      sortColumn: "", // Cột đang sắp xếp
+      filterStartDate: "", 
+      filterEndDate: "", 
+      searchQuery: "", 
+      sortColumn: "", 
       sortDirection: "asc",
     };
   },
   watch: {
-    // Theo dõi sự thay đổi của bộ lọc và tìm kiếm
+
     filterStartDate: "applyFilters",
     filterEndDate: "applyFilters",
     searchQuery: "applyFilters",
@@ -106,22 +106,19 @@ export default {
       try {
         const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/Admin/get-all-users`);
         this.users = response.data.users || [];
-        this.filteredUsers = this.users; // Khởi tạo danh sách lọc mặc định
+        this.filteredUsers = this.users; 
       } catch (error) {
         console.error("Error fetching users:", error);
       }
     },
     sortBy(column) {
       if (this.sortColumn === column) {
-        // Đổi hướng sắp xếp nếu cột đã được chọn
         this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
       } else {
-        // Chọn cột mới để sắp xếp
         this.sortColumn = column;
         this.sortDirection = "asc";
       }
 
-      // Sắp xếp danh sách đã lọc
       this.filteredUsers.sort((a, b) => {
         if (this.sortDirection === "asc") {
           return a[column] > b[column] ? 1 : -1;
@@ -133,7 +130,7 @@ export default {
     applyFilters() {
       let filtered = this.users;
 
-      // Lọc theo ngày
+
       if (this.filterStartDate && this.filterEndDate) {
         const startDate = new Date(this.filterStartDate);
         const endDate = new Date(this.filterEndDate);
@@ -144,7 +141,7 @@ export default {
         });
       }
 
-      // Lọc theo tìm kiếm
+
       if (this.searchQuery) {
         const query = this.searchQuery.toLowerCase();
         filtered = filtered.filter(
@@ -155,10 +152,9 @@ export default {
       }
 
       this.filteredUsers = filtered;
-      this.currentPage = 1; // Reset về trang đầu
+      this.currentPage = 1; 
     },
     resetFilters() {
-      // Đặt lại tất cả bộ lọc và hiển thị toàn bộ dữ liệu
       this.filterStartDate = "";
       this.filterEndDate = "";
       this.searchQuery = "";
@@ -173,7 +169,7 @@ export default {
     exportToPDF() {
       const doc = new jsPDF();
 
-      // Tiêu đề và thông tin bộ lọc
+
       doc.text("Users Export by Admin", 14, 10);
       if (this.filterStartDate || this.filterEndDate) {
         doc.text(
@@ -184,7 +180,7 @@ export default {
       }
       doc.text(`Search Query: ${this.searchQuery || "None"}`, 14, 30);
 
-      // Cấu hình bảng dữ liệu
+
       const tableColumns = [
         "Username",
         "Email",
@@ -202,14 +198,13 @@ export default {
         user.isVipSupplier ? "Yes" : "No",
       ]);
 
-      // Thêm bảng vào PDF
+
       doc.autoTable({
         startY: 40,
         head: [tableColumns],
         body: tableRows,
       });
 
-      // Xuất file PDF
       doc.save("User_Export.pdf");
     },
   },

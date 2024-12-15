@@ -1,4 +1,4 @@
-// src/utils/loadFacebookSDK.js
+
 export const loadFacebookSDK = () => {
     return new Promise((resolve, reject) => {
       if (window.FB) {

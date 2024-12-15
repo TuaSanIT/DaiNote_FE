@@ -600,11 +600,11 @@ export default {
 
 .submit-btn[disabled] {
   background-color: #6c757d;
-  /* Màu nút khi đang loading */
+  
   cursor: not-allowed;
 }
 
-/* Forgot Password */
+
 .forgot-password-link {
   text-align: center;
   margin-top: 10px;

@@ -110,7 +110,7 @@ export default {
       boards: [],
       username: 'User',
       workspaces: [],
-      // userImage: '/default-avatar.png',
+
       userImage: 'https://dainoteblob.blob.core.windows.net/dainotecontainer/avatars/1d509570-73e2-4e74-91ce-2d0e5cb9ef62.jpg',
       isSettingsOpen: false,
       isVip: false,
@@ -223,7 +223,7 @@ export default {
     },
     async logout() {
       try {
-        // Lấy `userId` từ localStorage
+
         const userId = localStorage.getItem("userId");
 
         if (!userId) {
@@ -231,15 +231,15 @@ export default {
         }
 
         console.log(userId)
-        // Gửi yêu cầu logout tới server cùng với `userId`
+
         await axios.post(`${process.env.VUE_APP_API_BASE_URL}/api/auth/logout?userId=${userId}`);
 
-        // Xóa session token từ localStorage và cookie
+
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
         document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
-        // Hiển thị thông báo và điều hướng tới trang login
+
         this.showNotification("Logged out successfully!", "success");
         this.$router.push("/login");
       } catch (err) {
@@ -269,7 +269,7 @@ export default {
 
 .sidebar {
   position: fixed;
-  /* top: 60px; */
+  
   top: 0px;
   left: 0;
   bottom: 0;
@@ -288,7 +288,7 @@ export default {
   height: 80px;
   margin-bottom: 20px;
 
-  /* Override the padding of the sidebar */
+  
   margin-left: -20px;
   margin-right: -20px;
   margin-top: -20px;
@@ -423,11 +423,11 @@ export default {
   display: flex;
   align-items: center;
   word-wrap: break-word;
-  /* Break long words and wrap text to the next line */
+  
   word-break: break-word;
-  /* Ensure long words are broken and don't overflow */
+  
   white-space: normal;
-  /* Allow wrapping of text */
+  
 }
 
 .user-img {

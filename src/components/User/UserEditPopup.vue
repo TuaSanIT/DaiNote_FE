@@ -177,7 +177,7 @@ export default {
     async updateUser() {
       const toast = useToast();
 
-      // Kiểm tra tính hợp lệ của số điện thoại
+
       const phoneRegex = /^[0-9]{10}$/;
       if (this.user.phoneNumber && !phoneRegex.test(this.user.phoneNumber)) {
         toast.error("Phone number must contain exactly 10 digits and no letters.");
@@ -335,7 +335,7 @@ export default {
   margin-top: 20px;
 }
 
-/* Profile Form và Password Form có cùng chiều rộng */
+
 .profile-form,
 .password-form {
   flex: 1;

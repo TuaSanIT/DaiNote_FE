@@ -367,7 +367,7 @@ export default {
     },
   },
   methods: {
-    // Fetch notes with labels
+
     async fetchNotes() {
       const userId = this.userId || this.getUserIdFromLocalStorage();
       if (!userId) {
@@ -398,7 +398,7 @@ export default {
       }
     },
 
-    // Handle Image
+
     closeImageModal() {
       this.showImageModal = false;
     },
@@ -430,7 +430,7 @@ export default {
       }
     },
 
-    // Fetch all available labels
+
     async fetchLabels() {
       const userId = this.userId || this.getUserIdFromLocalStorage();
       if (!userId) {
@@ -460,7 +460,7 @@ export default {
         alert("Failed to load labels.");
       }
     },
-    // Save or update a note
+
     async toggleBookmark(note) {
       try {
         const updatedNote = { ...note, bookmark: !note.bookmark };
@@ -551,9 +551,9 @@ export default {
       this.isEditing = false;
     },
 
-    // Open and manage label form for a specific note
-    // Open Label Form
-    // Add or Remove Labels from Note
+
+
+
     async toggleLabelForm(note) {
       try {
         if (!note || !note.id) {
@@ -563,7 +563,7 @@ export default {
 
         this.currentNote = note;
 
-        // Fetch assigned labels for the note
+
         const assignedLabelsResponse = await axios.get(
           `${process.env.VUE_APP_API_BASE_URL}/api/note/${note.id}/labels`
         );
@@ -577,12 +577,12 @@ export default {
           return;
         }
 
-        // Map only assigned label IDs
+
         this.selectedLabels = assignedLabelsResponse.data.map(
           (label) => label.labelId
         );
 
-        // Fetch all available labels
+
         const labelsResponse = await axios.get(
           `${process.env.VUE_APP_API_BASE_URL}/api/Label/user/${this.userId}`
         );
@@ -616,12 +616,12 @@ export default {
       }
 
       if (this.selectedLabels.includes(labelId)) {
-        // Remove the label
+
         this.selectedLabels = this.selectedLabels.filter(
           (id) => id !== labelId
         );
       } else {
-        // Add the label
+
         this.selectedLabels.push(labelId);
       }
 
@@ -636,7 +636,7 @@ export default {
           return;
         }
 
-        // Fetch currently assigned labels
+
         const assignedLabelsResponse = await axios.get(
           `${process.env.VUE_APP_API_BASE_URL}/api/note/${noteId}/labels`
         );
@@ -647,7 +647,7 @@ export default {
         console.log("Assigned labels before saving:", assignedLabels);
         console.log("Selected labels before saving:", this.selectedLabels);
 
-        // Calculate labels to add and remove
+
         const labelsToAdd = this.selectedLabels.filter(
           (labelId) => !assignedLabels.includes(labelId)
         );
@@ -658,7 +658,7 @@ export default {
         console.log("Labels to add:", labelsToAdd);
         console.log("Labels to remove:", labelsToRemove);
 
-        // Add labels
+
         if (labelsToAdd.length > 0) {
           await axios.post(
             `${process.env.VUE_APP_API_BASE_URL}/api/note/${noteId}/labels/batch`,
@@ -666,7 +666,7 @@ export default {
           );
         }
 
-        // Remove labels
+
         if (labelsToRemove.length > 0) {
           await axios.delete(
             `${process.env.VUE_APP_API_BASE_URL}/api/note/${noteId}/labels/batch`,
@@ -690,7 +690,7 @@ export default {
       this.selectedLabels = [];
     },
 
-    // Label creation
+
     openLabelForm() {
       this.showLabelForm = true;
       this.newLabel.name = "";
@@ -719,12 +719,12 @@ export default {
       this.showLabelForm = false;
     },
 
-    // Fetch user ID from localStorage
+
     getUserIdFromLocalStorage() {
       return localStorage.getItem("userId");
     },
 
-    // Initialize userId on component mount
+
     initializeUserId() {
       const userId = this.getUserIdFromLocalStorage();
       if (!userId) {
@@ -744,7 +744,7 @@ export default {
 </script>
   
   <style scoped>
-/* Main Layout */
+
 .main {
   min-height: 100vh;
   padding: 20px;
@@ -758,14 +758,14 @@ export default {
 }
 
 .popup-active {
-  z-index: -1; /* Lower z-index when popup is active */
+  z-index: -1; 
 }
 
 .container {
   z-index: 1;
 }
 
-/* Note Card Styles */
+
 .note-card {
   background-color: #d9d9d9;
   border: 2px solid #ddd;
@@ -823,7 +823,7 @@ export default {
   object-fit: contain;
 }
 
-/* Note Form Styles */
+
 .note-form {
   position: fixed;
   top: 0;
@@ -831,7 +831,7 @@ export default {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 999; /* Lower z-index for the form */
+  z-index: 999; 
   display: none;
 }
 
@@ -896,7 +896,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* Gray background outside the form */
+  background: rgba(0, 0, 0, 0.5); 
   z-index: 9999;
   display: none;
   justify-content: center;
@@ -953,7 +953,7 @@ button.btn-secondary {
   object-fit: cover;
 }
 
-/* Image Preview Styles */
+
 .image-preview-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -988,7 +988,7 @@ button.btn-secondary {
   background-color: darkred;
 }
 
-/* Image Modal Styles */
+
 .image-modal {
   position: fixed;
   top: 0;
@@ -999,7 +999,7 @@ button.btn-secondary {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Ensure modal is above the form */
+  z-index: 1000; 
 }
 
 .modal-image {

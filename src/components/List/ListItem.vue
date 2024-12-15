@@ -167,7 +167,6 @@ export default {
     "update-list": UpdateList,
     draggable,
   },
-  // emits: [''],
   mounted() {
     this.tasksRef = this.tasks;
     this.listData = {
@@ -194,7 +193,6 @@ export default {
         (task) => task.id === updatedTask.id
       );
       if (taskIndex !== -1) {
-        // this.tasksRef[taskIndex] = updatedTask;
         this.tasksRef[taskIndex] = {
           ...this.tasksRef[taskIndex],
           ...updatedTask,
@@ -249,14 +247,9 @@ export default {
         }
       }
     },
-    // Drag and drop
 
     async onTaskDragEnd(evt) {
       const { newIndex, oldIndex, from, to } = evt;
-
-      // console.log("Drag Event:", evt);
-      // console.log("Old Index:", oldIndex, "New Index:", newIndex);
-
       const isDifferentList = from.dataset.id !== to.dataset.id;
 
       const sourceListId = from.dataset.id;
@@ -272,15 +265,9 @@ export default {
       }
 
       const draggedTask = sourceList.taskInside[oldIndex];
-      // console.log("Dragged Task:", draggedTask);
-
       if (isDifferentList) {
         const targetListId = to.dataset.id;
         const targetList = this.lists.find((list) => list.id === targetListId);
-
-        // console.log("Dragged Task ID:", draggedTask.id);
-        // console.log("Target List ID:", targetListId);
-
         if (!targetList) {
           console.error(`Target list with ID ${targetListId} not found.`);
           return;
@@ -298,12 +285,7 @@ export default {
               `${process.env.VUE_APP_API_BASE_URL}/api/Task/moveTaskToListAtLastPosition`,
               body
             );
-            // console.log(body)
             this.getListAndTaskData();
-            // console.log(
-            //   "Task moved to the list at last position successfully",
-            //   body
-            // );
           } catch (error) {
             console.error(
               "Error moving task to the list at last position:",
@@ -321,12 +303,7 @@ export default {
               `${process.env.VUE_APP_API_BASE_URL}/api/Task/moveTaskToListWithTaskId`,
               body
             );
-            // console.log(body)
             this.getListAndTaskData();
-            // console.log(
-            //   "Task moved to the list with specific task id successfully",
-            //   body
-            // );
           } catch (error) {
             console.error(
               "Error moving task to the list with specific task id:",
@@ -335,7 +312,6 @@ export default {
           }
         }
       } else {
-        // The task is moved within the same list
         if (newIndex !== oldIndex) {
           const draggedTask = this.tasksRef[newIndex];
           const targetTask =
@@ -347,9 +323,7 @@ export default {
           };
           try {
             await axios.put(`${process.env.VUE_APP_API_BASE_URL}/api/Task/moveTask`, body);
-            // console.log(body);
             this.getListAndTaskData();
-            // console.log("Task moved successfully");
           } catch (error) {
             console.error("Error moving task:", error);
           }
@@ -400,7 +374,7 @@ export default {
   width: 320px;
   display: inline-block;
   margin: 0 20px;
-  /* margin-top: 20px; */
+  
   background-color: #f1f2f4;
   padding: 0;
   border-radius: 10px;

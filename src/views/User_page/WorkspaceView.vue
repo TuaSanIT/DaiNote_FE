@@ -12,7 +12,7 @@ export default {
     props: ['workspaceId'],
     mounted() {
         console.log('Received workspaceId:', this.workspaceId);
-        // Log for debugging
+
     }
 }
 </script>
