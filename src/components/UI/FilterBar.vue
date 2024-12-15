@@ -52,7 +52,7 @@ export default {
     async fetchCollaboratorEmail() {
       try {
         const response = await fetch(
-          `http://localhost:5141/api/Collaborator/${this.boardId}`
+          `${process.env.VUE_APP_API_BASE_URL}/api/Collaborator/${this.boardId}`
         );
         const data = await response.json();
         this.emailFilter = data === 1;
@@ -80,7 +80,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:5141/api/Pdf/generate-report?boardId=${this.boardId}`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/Pdf/generate-report?boardId=${this.boardId}`,
           { method: "GET" }
         );
 
@@ -201,7 +201,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:5141/api/Board/${this.boardId}/import`,
+          `${process.env.VUE_APP_API_BASE_URL}/api/Board/${this.boardId}/import`,
           {
             method: "POST",
             body: formData,
