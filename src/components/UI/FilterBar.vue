@@ -33,6 +33,8 @@
 
 <script>
 import { useToast } from "vue-toastification";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export default {
   props: ["boardId", "onFilter"],
@@ -49,7 +51,9 @@ export default {
   methods: {
     async fetchCollaboratorEmail() {
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/Collaborator/${this.boardId}`);
+        const response = await fetch(
+          `http://localhost:5141/api/Collaborator/${this.boardId}`
+        );
         const data = await response.json();
         this.emailFilter = data === 1;
         this.applyFilters();
@@ -76,7 +80,7 @@ export default {
 
       try {
         const response = await fetch(
-          `${process.env.VUE_APP_API_BASE_URL}/api/Pdf/generate-report?boardId=${this.boardId}`,
+          `http://localhost:5141/api/Pdf/generate-report?boardId=${this.boardId}`,
           { method: "GET" }
         );
 
@@ -84,10 +88,100 @@ export default {
           throw new Error("Failed to download the PDF.");
         }
 
+        const reportData = await response.json();
+        this.generatePdf(reportData);
+
         toast.success("Download PDF file successful");
       } catch (error) {
         console.error("Error downloading the PDF:", error);
         toast.error("Failed to download the PDF.");
+      }
+    },
+    generatePdf(reportData) {
+      const doc = new jsPDF();
+
+      const titleFont = { fontSize: 16, fontStyle: "bold" };
+      const sectionFont = { fontSize: 12, fontStyle: "bold" };
+      const bodyFont = { fontSize: 10 };
+
+      const text = (content, x, y, font) => {
+        if (content) {
+          doc.setFontSize(font.fontSize);
+          doc.setFont("times", font.fontStyle);
+          doc.text(content, x, y);
+        }
+      };
+
+      try {
+        text("Monthly Task Report", 20, 20, titleFont);
+        text("Tasks Created This Month", 20, 30, sectionFont);
+
+        let yPosition = 40; 
+
+        if (
+          !reportData.tasksCreatedThisMonth ||
+          !reportData.tasksCreatedThisMonth.length
+        ) {
+          text("No tasks created this month.", 20, yPosition, bodyFont);
+          yPosition += 10; 
+        } else {
+          doc.autoTable({
+            startY: yPosition,
+            head: [["Task Title", "Created At", "Finished At"]],
+            body: reportData.tasksCreatedThisMonth.map((task) => [
+              task.title || "",
+              task.create_At || "",
+              task.finish_At || "N/A",
+            ]),
+          });
+          yPosition = doc.autoTable.previous.finalY + 10; 
+        }
+
+        text("Tasks Done This Month", 20, yPosition, sectionFont);
+        yPosition += 10; 
+
+        if (
+          !reportData.tasksDoneThisMonth ||
+          !reportData.tasksDoneThisMonth.length
+        ) {
+          text("No tasks done this month.", 20, yPosition, bodyFont);
+          yPosition += 10; 
+        } else {
+          doc.autoTable({
+            startY: yPosition,
+            head: [["Task Title", "Created At", "Finished At"]],
+            body: reportData.tasksDoneThisMonth.map((task) => [
+              task.title || "",
+              task.create_At || "",
+              task.finish_At || "",
+            ]),
+          });
+          yPosition = doc.autoTable.previous.finalY + 10; 
+        }
+
+        text("Tasks Over This Month", 20, yPosition, sectionFont);
+        yPosition += 10; 
+
+        if (
+          !reportData.tasksOverThisMonth ||
+          !reportData.tasksOverThisMonth.length
+        ) {
+          text("No tasks over this month.", 20, yPosition, bodyFont);
+        } else {
+          doc.autoTable({
+            startY: yPosition,
+            head: [["Task Title", "Created At", "Finished At"]],
+            body: reportData.tasksOverThisMonth.map((task) => [
+              task.title || "",
+              task.create_At || "",
+              task.finish_At || "",
+            ]),
+          });
+        }
+
+        doc.save("MonthlyTaskReport.pdf");
+      } catch (error) {
+        console.error("Error generating PDF:", error);
       }
     },
     triggerFileUpload() {
@@ -106,10 +200,13 @@ export default {
       formData.append("file", file);
 
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/Board/${this.boardId}/import`, {
-          method: "POST",
-          body: formData,
-        });
+        const response = await fetch(
+          `http://localhost:5141/api/Board/${this.boardId}/import`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
 
         if (response.ok) {
           toast.success("Import successful.");
@@ -123,7 +220,7 @@ export default {
         console.error("Error importing Excel file:", error);
         toast.error("Failed to import Excel file.");
       } finally {
-        event.target.value = ""; 
+        event.target.value = "";
       }
     },
   },

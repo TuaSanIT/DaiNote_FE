@@ -42,6 +42,7 @@ export default {
     return {
       isDarkTheme: false,
       avatarImages: [],
+      defaultAvatar: require("../../../public/default-avatar.png"),
     };
   },
   watch: {
@@ -83,7 +84,7 @@ export default {
           const response = await axios.get(
             `${process.env.VUE_APP_API_BASE_URL}/api/user/${userId}`
           );
-          return response.data.avatarImage || null;
+          return response.data.avatarImage || defaultAvatar;
         });
 
         this.avatarImages = await Promise.all(avatarPromises);
