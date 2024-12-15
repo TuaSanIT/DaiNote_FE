@@ -11,7 +11,7 @@
           <img
             v-for="(avatar, index) in avatarImages"
             :key="index"
-            :src="avatar"
+            :src="avatar || defaultAvatar"
             alt="User Avatar"
             class="avatar-image"
           />
@@ -84,7 +84,7 @@ export default {
           const response = await axios.get(
             `${process.env.VUE_APP_API_BASE_URL}/api/user/${userId}`
           );
-          return response.data.avatarImage || defaultAvatar;
+          return response.data.avatarImage;
         });
 
         this.avatarImages = await Promise.all(avatarPromises);
