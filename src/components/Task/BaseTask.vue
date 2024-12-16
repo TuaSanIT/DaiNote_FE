@@ -8,18 +8,15 @@
           </span>
         </div>
         <div class="avatar-group" v-if="avatarImages.length > 0">
-          <img
-            v-for="(avatar, index) in avatarImages"
-            :key="index"
-            :src="avatar || defaultAvatar"
-            alt="User Avatar"
-            class="avatar-image"
-          />
+          <img v-for="(avatar, index) in avatarImages" :key="index" :src="avatar || defaultAvatar" alt="User Avatar"
+            class="avatar-image" />
         </div>
         <div class="task-content">
           <p>{{ description }}</p>
         </div>
-        <div class="task-footer" :class="statusClass"></div>
+        <div class="task-footer" :class="statusClass">
+          <span class="days-left">{{ daysLeftText }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -71,11 +68,40 @@ export default {
         "status-done": this.status === "done",
       };
     },
+    daysLeftText() {
+      if (this.status === "done") {
+        return "Done"; 
+      }
+
+      if (this.status === "pending") {
+        return "Pending";
+      }
+
+      if (!this.finished_at) {
+        return "No deadline"; 
+      }
+
+      const now = new Date();
+      const deadline = new Date(this.finished_at);
+      const timeDiff = deadline - now;
+      const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+      if (daysLeft < 0) {
+        return "Overdue"; 
+      }
+
+      if (this.status === "ongoing") {
+        return `${daysLeft} days left`; 
+      }
+
+      return this.status; 
+    },
+
   },
   methods: {
     async fetchUserAvatars() {
       if (!this.assignedUsers || this.assignedUsers.length === 0) {
-        this.avatarImages = []; // No assigned users
+        this.avatarImages = [];
         return;
       }
 
@@ -131,73 +157,112 @@ export default {
   cursor: pointer;
 }
 
+
+.task-container {
+  margin: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.task-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+
 .task {
-  background-color: var(--vt-c-white);
-  width: 250px;
-  min-height: 50px;
-  border-radius: 8px;
-  position: relative;
+  background-color: #ffffff;
+  border-radius: 16px; 
+  overflow: hidden;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0; 
   display: flex;
   flex-direction: column;
 }
-.task:hover {
-  cursor: pointer;
-  border: 1.5px solid blue;
-}
+
+
 .task-header {
+  background-color: #f8fafc; 
+  padding: 16px;
+  font-weight: bold;
+  font-size: 18px;
+  color: #1e293b; 
+  text-align: left;
+}
+
+
+.avatar-group {
   display: flex;
-  align-items: center;
-  padding: 10px;
-}
-
-.title-wrapper {
-  flex-grow: 1;
-  text-align: center;
-}
-
-.task-header .title {
-  font-weight: 800;
-  color: var(--vt-c-text-light-1);
+  padding: 1px 16px;
+  justify-content: flex-end;
+  height: 40px;
 }
 
 .avatar-image {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  object-fit: cover;
-  align-self: flex-end;
-  margin: 0 10px;
+  margin-left: -8px;
+  border: 2px solid white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
 }
+
+.avatar-image:hover {
+  transform: scale(1.1);
+}
+
 
 .task-content {
-  word-wrap: break-word;
-  word-break: break-word;
-  white-space: normal;
-  padding: 0px 4px;
-  padding-bottom: 14px;
-  text-align: left;
-  margin: 0px 5px 0px 2px;
-  color: var(--vt-c-text-light-1);
+  padding: 16px;
+  font-size: 16px;
+  color: #475569; 
+  line-height: 1.6;
+  background-color: #f8fafc; 
 }
+
 
 .task-footer {
-  height: 5px;
-  border-radius: 0 0 8px 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  border-top: 1px solid #e2e8f0;
+  text-transform: uppercase;
+  height: 10px;
 }
 
-.status-ongoing.task-footer {
-  background-color: yellow;
+
+.status-ongoing {
+  background-color: #fcd34d; 
+  color: #78350f; 
 }
 
-.status-pending.task-footer {
-  background-color: gray;
+.status-pending {
+  background-color: #e2e8f0; 
+  color: #475569;
 }
 
-.status-over.task-footer {
-  background-color: red;
+.status-over {
+  background-color: #f87171; 
+  color: #7f1d1d;
 }
 
-.status-done.task-footer {
-  background-color: #4caf50;
+.status-done {
+  background-color: #34d399; 
+  color: #065f46;
+}
+
+
+.days-left {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #334155;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  text-align: center;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 </style>

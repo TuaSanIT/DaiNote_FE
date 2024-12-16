@@ -15,7 +15,7 @@
     props: ['boardId'],
     data() {
       return {
-        isSidebarOpen: true, // Initial state
+        isSidebarOpen: true,
       };
     },
     methods: {

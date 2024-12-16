@@ -19,16 +19,16 @@
     },
     data() {
       return {
-        isSidebarOpen: true, // Track the state of the sidebar
+        isSidebarOpen: true, 
         isPopupActive: false,
       };
     },
     methods: {
       updateSidebarState(isOpen) {
-        this.isSidebarOpen = isOpen; // Update the state when the sidebar toggles
+        this.isSidebarOpen = isOpen; 
       },
       updatePopupState(isActive) {
-        this.isPopupActive = isActive; // Update the state when the sidebar toggles
+        this.isPopupActive = isActive; 
       },
     },
   };

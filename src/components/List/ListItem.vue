@@ -488,7 +488,7 @@ export default {
 .list-task {
   flex-grow: 1;
   overflow-y: auto; 
-  max-height: 490px; 
+  max-height: 650px; 
   padding: 15px 10px; 
   padding-bottom: 10px;
   margin-bottom: 30px;
