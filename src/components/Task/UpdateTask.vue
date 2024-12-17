@@ -53,24 +53,9 @@
               type="checkbox"
               id="available-check"
               v-model="taskData.availableCheck"
+              :disabled="isCollaborator"
             />
           </div>
-          <!-- <div class="task-field">
-            <label for="assigned-users">Assigned Users</label>
-            <select
-              id="assigned-users"
-              multiple
-              v-model="taskData.assignedUsers"
-            >
-              <option
-                v-for="collaborator in collaborators"
-                :key="collaborator.userId"
-                :value="collaborator.userId"
-              >
-                {{ collaborator.userEmail }}
-              </option>
-            </select>
-          </div> -->
 
           <div class="task-field" v-if="collaborators.length > 1">
             <label for="assigned-users">Assigned Users</label>
@@ -162,7 +147,7 @@ import axios from "axios";
 import { useToast } from "vue-toastification";
 
 export default {
-  props: ["task", "boardId"],
+  props: ["task", "boardId", "isCollaborator"],
   emits: ["closeForm", "taskUpdated", "taskDeleted"],
   data() {
     return {
@@ -223,7 +208,7 @@ export default {
         );
         this.collaborators = response.data;
 
-
+        // Ensure taskData.assignedUsers contains only valid collaborators
         this.taskData.assignedUsers = this.taskData.assignedUsers.filter(
           (userId) =>
             this.collaborators.some(
@@ -267,9 +252,9 @@ export default {
         formData.append("status", this.taskData.status);
         formData.append("availableCheck", this.taskData.availableCheck);
 
-
+        // Log the JSON string for AssignedUsers
         const assignedUsersJson = JSON.stringify(this.taskData.assignedUsers);
-
+        // console.log("AssignedUsers JSON:", assignedUsersJson);
 
         formData.append("assignedUsers", assignedUsersJson);
 
@@ -394,17 +379,17 @@ select {
 }
 
 .task-field label {
-  width: 150px; 
+  width: 150px; /* adjust the width as needed */
 }
 
 .task-field input,
 .task-field textarea,
 .task-field select {
-  width: 70%; 
+  width: 70%; /* adjust the width as needed */
   background-color: var(--vt-c-white) !important;
   border-style: solid !important;
   border-width: 1px !important;
-  border-color: var(--vt-c-black) !important; 
+  border-color: var(--vt-c-black) !important; /* Set a default border color */
   padding: 5px;
 }
 
@@ -471,8 +456,8 @@ select {
 }
 
 .button-container .add.loading {
-  background-color: #d3d3d3; 
-  color: #808080; 
+  background-color: #d3d3d3; /* Grey background */
+  color: #808080; /* Grey text */
   cursor: not-allowed;
 }
 
@@ -484,7 +469,7 @@ select {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
-  align-items: flex-start; 
+  align-items: flex-start; /* Align items at the top */
 }
 
 .dropdown-container {
@@ -494,7 +479,7 @@ select {
 }
 
 .dropdown {
-  width: 70%; 
+  width: 70%; /* Match other inputs */
   padding: 5px;
   margin-right: 8px;
 }
@@ -520,7 +505,7 @@ select {
 }
 
 .selected-tags {
-  margin-top: 10px; 
+  margin-top: 10px; /* Space between dropdown and user tags */
   width: 100%;
 }
 
@@ -538,7 +523,6 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  
 }
 
 .user-tag .remove-tag {

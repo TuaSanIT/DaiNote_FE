@@ -276,7 +276,7 @@ export default defineComponent({
 
       if (token && userId) {
         try {
-          const response = await this.$axios.get(`http://localhost:5141/api/auth/validate-token`, {
+          const response = await this.$axios.get(`${process.env.VUE_APP_API_BASE_URL}/api/auth/validate-token`, {
             headers: {
               Authorization: `Bearer ${token}`,
               UserId: userId, 

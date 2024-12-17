@@ -46,17 +46,17 @@
                 required
               ></textarea>
             </div>
-            <div class="task-field">
+            <div class="task-field" v-if="!isCollaborator">
               <label for="status">Status</label>
               <select v-model="task.status" required>
                 <option value="" disabled selected>Select status</option>
                 <option value="ongoing">Ongoing</option>
-                <option value="pending">Pending</option>
+                <!-- <option value="pending">Pending</option> -->
                 <option value="done">Done</option>
                 <option value="over">Over</option>
               </select>
             </div>
-            <div class="task-field">
+            <div class="task-field" v-if="!isCollaborator">
               <label for="available-check">Available Check</label>
               <input
                 type="checkbox"
@@ -82,7 +82,7 @@ import { useToast } from "vue-toastification";
 import axios from "axios";
 
 export default {
-  props: ["listId"],
+  props: ["listId", "isCollaborator"],
   emits: ["closeForm", "taskCreated"],
   data() {
     return {
@@ -110,6 +110,9 @@ export default {
     },
     async createTask() {
       const toast = useToast();
+      if(this.isCollaborator){
+        this.task.status = "pending";
+      }
       if (
         !this.task.title ||
         !this.task.description ||
@@ -128,10 +131,19 @@ export default {
         toast.error("The finish date must be after the creation date");
         return;
       }
+      
       try {
+        const userId = localStorage.getItem("userId");
+
         const response = await axios.post(
           `${process.env.VUE_APP_API_BASE_URL}/api/Task?listId=${this.listId}`,
-          this.task
+          this.task,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${userId}` // Pass userId in headers
+            },
+          }
         );
         const task = { ...response.data, description: this.task.description };
         task.listId = this.listId;
@@ -146,12 +158,12 @@ export default {
       this.isDarkTheme = !this.isDarkTheme; // Toggle theme state
       document.body.classList.toggle("dark-theme", this.isDarkTheme); // Toggle dark theme class on body
 
-
+      // Save the theme preference to local storage
       localStorage.setItem("theme", this.isDarkTheme ? "dark" : "light");
     },
   },
   mounted() {
-
+    // Check local storage for theme preference on mount
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
       this.isDarkTheme = true;

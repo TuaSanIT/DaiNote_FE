@@ -37,6 +37,7 @@
                 :listId="element.id"
                 :lists="filteredLists"
                 :boardId="boardId"
+                :isCollaborator="isCollaborator"
                 @listDeleted="removeListFromUI"
                 @taskCreated="handleTaskCreated"
                 @taskUpdated="handleTaskUpdated"
@@ -93,6 +94,7 @@ import axios from "axios";
 import draggable from "vuedraggable";
 import FilterBar from "../UI/FilterBar.vue";
 import { useToast } from "vue-toastification";
+// import { co } from "@fullcalendar/core/internal-common";
 
 export default {
   components: {
@@ -118,17 +120,21 @@ export default {
 
       currentListId: null,
       selectedTask: null,
+
+      isCollaborator: false,
     };
   },
   mounted() {
     this.getListAndTaskData(); 
     this.filteredLists = this.lists;
+    console.log(this.isCollaborator);
   },
   watch: {
     boardId: {
       immediate: true, 
       handler(newBoardId, oldBoardId) {
         if (newBoardId !== oldBoardId) {
+          // console.log(`Board ID changed from ${oldBoardId} to ${newBoardId}`);
           this.getListAndTaskData();
         }
       },
@@ -142,10 +148,29 @@ export default {
       this.isDisplayCreateTask = !this.isDisplayCreateTask;
     },
     showCreateTask(listId) {
+      // console.log("Selected List ID:", listId);
       this.currentListId = listId;
       this.changeTaskVisibility();
     },
+    async checkIfCollaborator() {
+    try {
+      const userId = localStorage.getItem("userId");
+      const response = await axios.get(
+        `${process.env.VUE_APP_API_BASE_URL}/api/Collaborator/is-collaborator`,
+        {
+          params: { boardId: this.boardId, userId: userId },
+        }
+      );
+      console.log(response)
+      console.log(response.data);
+      this.isCollaborator = response.data; // true = collaborator, false = owner
+    } catch (error) {
+      console.error("Error checking collaborator status:", error);
+      this.isCollaborator = false; // Default to owner if API call fails
+    }
+  },
     async getListAndTaskData() {
+      await this.checkIfCollaborator();
       try {
         const userId = localStorage.getItem("userId");
         if (!userId || !this.boardId) {
@@ -164,8 +189,16 @@ export default {
           }
         );
 
+        // Cập nhật dữ liệu mới từ API
         this.lists = response.data || [];
         this.filteredLists = [...this.lists];
+        // this.lists = response.data.map((list) => {
+        //   list.taskInside = list.taskInside.map((task) => ({
+        //     ...task,
+        //     assignedUsers: task.assignedUsers || [], 
+        //   }));
+        //   return list;
+        // });
 
         console.log("Lists and tasks fetched successfully:", this.lists);
       } catch (error) {
@@ -190,6 +223,7 @@ export default {
           title: this.newListTitle,
           status: this.newListStatus,
         };
+        // console.log("use POST API");
         const response = await axios.post(
           `${process.env.VUE_APP_API_BASE_URL}/api/List?boardId=${this.boardId}`,
           body
@@ -208,12 +242,15 @@ export default {
     },
 
     handleTaskCreated(task) {
+      // console.log("Handling task created:", task);
+      // console.log("Current lists:", this.lists);
 
       const list = this.lists.find((list) => list.id === task.listId);
       if (list) {
         const existingTask = list.taskInside.find((t) => t.id === task.id);
         if (!existingTask) {
           list.taskInside.push(task);
+          // console.log("Task appended to list:", list);
         }
       } else {
         console.error("List not found for task:", task);
@@ -222,16 +259,23 @@ export default {
       this.filteredLists = [...this.lists];
     },
     handleTaskUpdated(updatedTask) {
+      // console.log("Handling task updated:", updatedTask);
 
       this.lists.forEach((list) => {
         const taskIndex = list.taskInside.findIndex(
           (task) => task.id === updatedTask.id
         );
         if (taskIndex !== -1) {
+          // list.taskInside[taskIndex] = updatedTask;
           list.taskInside[taskIndex] = {
             ...list.taskInside[taskIndex],
             ...updatedTask,
           };
+          // console.log(
+          //   "Updated task in filteredLists:",
+          //   updatedTask,
+          //   this.filteredLists
+          // );
         }
       });
       this.filteredLists = [...this.lists];
@@ -246,6 +290,11 @@ export default {
     },
 
     removeTaskFromList(taskId) {
+      // console.log("get delete task emit", taskId);
+
+      // const list = this.lists.find((list) =>
+      //   list.taskInside.some((task) => task.id === taskId)
+      // );
       const list = this.lists.find((list) =>
         list.taskInside.some((task) => task.id === taskId)
       );
@@ -263,6 +312,7 @@ export default {
       this.selectedTask = null;
     },
     removeListFromUI(listId) {
+      // console.log("get delete list emit", listId);
       this.lists = this.lists.filter((list) => list.id !== listId);
     },
 
@@ -291,10 +341,14 @@ export default {
           this.lists = [...this.lists];
 
           try {
-            await axios.put(`${process.env.VUE_APP_API_BASE_URL}/api/list/move`, {
+            // console.log("DraggedListId:", draggedList.id);
+            // console.log("TargetListId:", targetList.id);
+
+            await axios.put("${process.env.VUE_APP_API_BASE_URL}/api/list/move", {
               DraggedListId: draggedList.id,
               TargetListId: targetList.id,
             });
+            // console.log("List position updated successfully");
             this.getListAndTaskData();
           } catch (error) {
             console.error("Error updating list position:", error);
@@ -303,6 +357,7 @@ export default {
       }
     },
     applyFilters(filters) {
+      // console.log("Filters received in BaseList.vue: ", filters);
       this.filteredLists = this.lists.map((list) => {
         const filteredTasks = list.taskInside.filter((task) => {
           const matchesStatus = filters.status
@@ -324,6 +379,7 @@ export default {
           taskInside: filteredTasks,
         };
       });
+      // console.log("Filtered lists: ", this.filteredLists);
     },
   },
 };
@@ -453,7 +509,7 @@ export default {
   margin-bottom: 30px;
 }
 
-
+/* form */
 .add-list {
   margin-top: 30px;
   min-width: 200px;
@@ -512,7 +568,7 @@ export default {
   border: none;
 }
 
-
+/* Add New List  */
 .add-confirm {
   min-width: 200px;
   display: inline-block;
