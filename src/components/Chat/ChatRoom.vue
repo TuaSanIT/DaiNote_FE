@@ -131,7 +131,7 @@ export default {
 
     async loadChatRooms() {
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chatroom/get-chat-rooms`);
+        const response = await fetch(`http://localhost:5141/api/chatroom/get-chat-rooms`);
         if (response.ok) {
           this.chatRooms = await response.json();
         } else {
@@ -143,17 +143,25 @@ export default {
     },
 
     async loadUsers() {
+      if (!this.boardId) {
+        console.error("Board ID is missing!");
+        return;
+      }
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/board/${this.boardId}/users`);
+        const response = await fetch(`http://localhost:5141/api/board/${this.boardId}/users`);
         if (response.ok) {
           const usersData = await response.json();
-          this.users = usersData.map((user) => ({
-            user_Id: user.user_Id,
-            fullName: user.fullName,
-            userName: user.userName,
-            avatarImage: user.avatarImage,
-          }));
-          console.log("Loaded users:", this.users);
+
+          const currentUserId = localStorage.getItem("userId");
+
+          this.users = usersData
+            .filter(user => user.userId !== currentUserId)
+            .map((user) => ({
+              user_Id: user.userId,
+              fullName: user.fullName,
+              userName: user.userName,
+              avatarImage: user.avatarImage,
+            }));
         } else {
           console.error("Failed to load board users");
         }
@@ -162,12 +170,11 @@ export default {
       }
     },
 
-
     async createChatRoom() {
       if (!this.newRoomName) return;
 
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chatroom/create-chat-room`, {
+        const response = await fetch(`http://localhost:5141/api/chatroom/create-chat-room`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: this.newRoomName }),
@@ -185,7 +192,6 @@ export default {
       }
     },
 
-
     async joinRoom(roomId) {
       this.currentRoomId = roomId;
       this.currentUserId = null;
@@ -197,7 +203,7 @@ export default {
       }
 
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/messages?roomId=${roomId}`);
+        const response = await fetch(`http://localhost:5141/api/chat/messages?roomId=${roomId}`);
         if (response.ok) {
           this.messages = await response.json();
         } else {
@@ -211,18 +217,19 @@ export default {
     async startPrivateChat(userId) {
       const senderUserId = localStorage.getItem("userId");
 
-      if (!senderUserId) {
-        console.error("User ID is missing in localStorage.");
+      if (!senderUserId || !this.boardId) {
+        console.error("Missing sender ID or board ID.");
         return;
       }
 
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chatprivate/start`, {
+        const response = await fetch(`http://localhost:5141/api/chatprivate/start`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             senderUserId: senderUserId,
-            receiverUserId: userId
+            receiverUserId: userId,
+            boardId: this.boardId,
           }),
         });
 
@@ -230,10 +237,13 @@ export default {
         if (response.ok && data.success) {
           this.currentChatPrivateId = data.chatPrivateId;
           this.currentUserId = userId;
-          const user = this.users.find(u => u.user_Id === userId);
-          this.currentUserName = user.userName;
-          this.currentFullName = user.fullName;
-          this.currentUserAvatar = user.avatarImage;
+
+          const user = this.users.find((u) => u.user_Id === userId);
+          if (user) {
+            this.currentUserName = user.userName;
+            this.currentFullName = user.fullName;
+            this.currentUserAvatar = user.avatarImage;
+          }
 
           await this.loadPrivateMessages(userId);
         } else {
@@ -247,22 +257,31 @@ export default {
     async loadPrivateMessages(receiverUserId) {
       const senderUserId = localStorage.getItem("userId");
 
-      if (!senderUserId) {
-        console.error("User ID is missing in localStorage.");
+      if (!senderUserId || !this.boardId) {
+        console.error("Missing sender ID or board ID.");
         return;
       }
 
       try {
         const response = await fetch(
-          `${process.env.VUE_APP_API_BASE_URL}/api/chatprivate/messages?senderUserId=${senderUserId}&receiverUserId=${receiverUserId}`
+          `http://localhost:5141/api/chatprivate/messages?senderUserId=${senderUserId}&receiverUserId=${receiverUserId}&boardId=${this.boardId}`
         );
 
         if (response.ok) {
-          this.messages = await response.json();
-          console.log("Loaded private messages:", this.messages);
+          const messagesData = await response.json();
+          this.messages = messagesData.map((msg) => ({
+            avatarImage:
+              msg.senderUserId === senderUserId
+                ? msg.senderUser.avatarImage || this.defaultAvatar
+                : msg.receiverUser.avatarImage || this.defaultAvatar,
+            content: msg.imageChat || msg.message,
+            type: msg.imageChat ? "image" : "text",
+            senderName: msg.senderUserId === senderUserId ? "You" : msg.senderUser.fullName,
+            notificationDateTime: msg.notificationDateTime,
+          }));
+          console.log(senderUserId + 'and' + receiverUserId)
         } else {
-          const errorText = await response.text();
-          console.error("Failed to load private messages:", errorText);
+          console.error("Failed to load private messages");
         }
       } catch (err) {
         console.error("Error loading private messages:", err);
@@ -296,45 +315,82 @@ export default {
       if (!this.message && !this.attachedFile && !this.attachedImage) return;
 
       const formData = new FormData();
-      const senderUserId = localStorage.getItem("userId");
 
-      if (this.currentRoomId) {
-        formData.append("chatRoomId", this.currentRoomId);
-      } else if (this.currentUserId) {
+      if (this.currentUserId) {
         formData.append("receiverUserId", this.currentUserId);
-        formData.append("senderUserId", senderUserId);
       } else {
         console.error("No valid chat context.");
         return;
       }
+
+      // Kiểm tra BoardId
+      if (!this.boardId) {
+        console.error("BoardId is missing!");
+        return;
+      }
+      formData.append("boardId", this.boardId);
 
       formData.append("message", this.message || "");
       if (this.attachedFile) formData.append("file", this.attachedFile);
       if (this.attachedImage) formData.append("file", this.attachedImage);
 
       try {
-        const endpoint = this.currentRoomId
-          ? "${process.env.VUE_APP_API_BASE_URL}/api/chat/send"
-          : "${process.env.VUE_APP_API_BASE_URL}/api/chatprivate/send";
+        const endpoint = `http://localhost:5141/api/chatprivate/send`;
 
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          console.error("UserId is missing from localStorage!");
+          return;
+        }
+
+        console.log("UserId being sent:", userId);
+        console.log("BoardId being sent:", this.boardId);
+
+        // Thêm tin nhắn tạm thời vào giao diện
+        const tempMessage = {
+          avatarImage: this.defaultAvatar,
+          content: this.message,
+          type: "text",
+          senderName: "You",
+          notificationDateTime: new Date().toLocaleString(),
+        };
+        this.messages.push(tempMessage);
+
+        // Gửi tin nhắn qua SignalR
+        await connection.invoke("SendPrivateMessage", this.currentUserId, this.message, userId);
+
+        // Gửi tin nhắn qua API để lưu vào cơ sở dữ liệu
         const response = await fetch(endpoint, {
           method: "POST",
+          headers: {
+            "UserId": userId,
+          },
           body: formData,
         });
 
         if (response.ok) {
-          const { chatMessage, privateChat } = await response.json();
-          const newMessage = chatMessage || privateChat;
+          const { privateChat } = await response.json();
 
-          this.messages.push({
-            sender: "You",
-            content: newMessage.ImageChat || newMessage.Message,
-            type: newMessage.MessageType || "text",
-          });
+          // Cập nhật tin nhắn trong giao diện (thay thế tin nhắn tạm thời)
+          this.messages = this.messages.map((msg) =>
+            msg === tempMessage
+              ? {
+                avatarImage: privateChat.senderUser.avatarImage || this.defaultAvatar,
+                content: privateChat.imageChat || privateChat.message,
+                type: privateChat.imageChat ? "image" : "text",
+                senderName: "You",
+                senderUserId: privateChat.senderUserId,
+                notificationDateTime: privateChat.notificationDateTime,
+              }
+              : msg
+          );
 
-          this.message = '';
+          // Reset input message và file
+          this.message = "";
           this.clearImage();
           this.clearFile();
+        } else {
+          console.error("Error sending message via API.");
         }
       } catch (err) {
         console.error("Error sending message:", err);
@@ -343,7 +399,7 @@ export default {
 
     async uploadMedia(formData, endpoint, type) {
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/${endpoint}`, {
+        const response = await fetch(`http://localhost:5141/api/chat/${endpoint}`, {
           method: 'POST',
           body: formData,
         });
@@ -420,14 +476,22 @@ export default {
     });
 
 
-    connection.on('ReceiveChatPrivateRealtime', (privateMessage) => {
-      if (
-        privateMessage.senderUserId === this.currentUserId ||
-        privateMessage.receiverUserId === this.currentUserId
-      ) {
-        this.messages.push({ sender: privateMessage.senderUserId, content: privateMessage.message });
-      }
+    connection.on("ReceivePrivateMessage", (privateMessage) => {
+      const currentUserId = localStorage.getItem("userId");
+
+      this.messages.push({
+        avatarImage: privateMessage.senderUser.avatarImage || this.defaultAvatar,
+        content: privateMessage.imageChat || privateMessage.message,
+        type: privateMessage.imageChat ? "image" : "text",
+        senderName:
+          privateMessage.senderUserId === currentUserId
+            ? "You"
+            : privateMessage.senderUser.fullName,
+        senderUserId: privateMessage.senderUserId,
+        notificationDateTime: privateMessage.notificationDateTime,
+      });
     });
+
   },
 };
 </script>
