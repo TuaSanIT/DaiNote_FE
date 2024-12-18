@@ -131,7 +131,7 @@ export default {
 
     async loadChatRooms() {
       try {
-        const response = await fetch(`http://localhost:5141/api/chatroom/get-chat-rooms`);
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chatroom/get-chat-rooms`);
         if (response.ok) {
           this.chatRooms = await response.json();
         } else {
@@ -148,7 +148,7 @@ export default {
         return;
       }
       try {
-        const response = await fetch(`http://localhost:5141/api/board/${this.boardId}/users`);
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/board/${this.boardId}/users`);
         if (response.ok) {
           const usersData = await response.json();
 
@@ -174,7 +174,7 @@ export default {
       if (!this.newRoomName) return;
 
       try {
-        const response = await fetch(`http://localhost:5141/api/chatroom/create-chat-room`, {
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chatroom/create-chat-room`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: this.newRoomName }),
@@ -203,7 +203,7 @@ export default {
       }
 
       try {
-        const response = await fetch(`http://localhost:5141/api/chat/messages?roomId=${roomId}`);
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/messages?roomId=${roomId}`);
         if (response.ok) {
           this.messages = await response.json();
         } else {
@@ -223,7 +223,7 @@ export default {
       }
 
       try {
-        const response = await fetch(`http://localhost:5141/api/chatprivate/start`, {
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chatprivate/start`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -264,7 +264,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:5141/api/chatprivate/messages?senderUserId=${senderUserId}&receiverUserId=${receiverUserId}&boardId=${this.boardId}`
+          `${process.env.VUE_APP_API_BASE_URL}/api/chatprivate/messages?senderUserId=${senderUserId}&receiverUserId=${receiverUserId}&boardId=${this.boardId}`
         );
 
         if (response.ok) {
@@ -335,7 +335,7 @@ export default {
       if (this.attachedImage) formData.append("file", this.attachedImage);
 
       try {
-        const endpoint = `http://localhost:5141/api/chatprivate/send`;
+        const endpoint = `${process.env.VUE_APP_API_BASE_URL}/api/chatprivate/send`;
 
         const userId = localStorage.getItem("userId");
         if (!userId) {
@@ -399,7 +399,7 @@ export default {
 
     async uploadMedia(formData, endpoint, type) {
       try {
-        const response = await fetch(`http://localhost:5141/api/chat/${endpoint}`, {
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/${endpoint}`, {
           method: 'POST',
           body: formData,
         });
