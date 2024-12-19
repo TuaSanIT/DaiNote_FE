@@ -227,7 +227,7 @@ export default {
 
       this.autoLoadInterval = setInterval(() => {
         this.loadPrivateMessages(receiverUserId);
-      }, 5000);
+      }, 2000);
     },
 
     stopAutoLoadMessages() {
@@ -312,7 +312,7 @@ export default {
           formData.append("File", this.attachedFile);
         }
 
-        const response = await fetch('${process.env.VUE_APP_API_BASE_URL}/api/chat/private/send-message', {
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/private/send-message`, {
           method: 'POST',
           body: formData,
         });
