@@ -1,13 +1,6 @@
 <template>
   <div class="chat-container" :class="{ 'collapsed-sidebar': !isSidebarOpen }">
     <div class="chat-sidebar">
-      <h2>Chat Rooms</h2>
-      <!-- Form tạo phòng chat -->
-      <div class="create-room">
-        <input v-model="newRoomName" placeholder="Enter room name" />
-        <button @click="createChatRoom">Create Room</button>
-      </div>
-
       <!-- Danh sách phòng chat -->
       <ul class="chat-room-list">
         <li v-for="(room, index) in chatRooms" :key="index" class="chat-room-item">
@@ -41,14 +34,7 @@
           </div>
           <h2 v-else-if="currentRoomId">Chat Room: {{ currentRoomName }}</h2>
         </div>
-        <div class="header-right">
-          <button class="icon-button" @click="startVoiceCall">
-            <i class="fa fa-phone"></i>
-          </button>
-          <button class="icon-button" @click="startVideoCall">
-            <i class="fa fa-video"></i>
-          </button>
-        </div>
+
       </div>
 
       <div class="chat-messages">
