@@ -1,186 +1,131 @@
 import * as signalR from '@microsoft/signalr';
 
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
+
 // SignalR connection setup
 const connection = new signalR.HubConnectionBuilder()
   .withUrl(`${process.env.VUE_APP_API_BASE_URL}/chatHub`, {
     withCredentials: true,
-    skipNegotiation: false,
-    transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling,
+    skipNegotiation: true,
+    transport: signalR.HttpTransportType.WebSockets,
   })
   .configureLogging(signalR.LogLevel.Information)
   .build();
 
-connection.on('ReceiveMessage2', (user, message) => {
-  console.log(`${user} says: ${message}`);
+// Event handlers
+connection.on('ReceiveRoomMessage', (message) => {
+  console.log('Room message received:', message);
 });
 
 connection.on('ReceivePrivateMessage', (message) => {
   console.log('Private message received:', message);
 });
 
-connection.on('ReceiveNotificationRealtime', (notification) => {
-  console.log('Real-time Notification:', notification);
-});
-
-connection.on('UpdateUsersList', (users) => {
-  console.log('Updated connected users list:', users);
-});
-
-connection.on('UpdateUsersOnlineList', (usersOnline) => {
-  console.log('Users online:', usersOnline);
-});
-
-connection.on('UpdateUsersOfflineList', (usersOffline) => {
-  console.log('Users offline:', usersOffline);
-});
-
-connection.on('ReceiveChatRoomSignalR', (chatRoom) => {
-  console.log('Chat room updated:', chatRoom);
-});
-
-connection.on('ReceiveNewChatRoom', (chatRoom) => {
-  console.log('New chat room created:', chatRoom);
-});
-
-connection.on('ReceiveUpdatedChatRoom', (chatRoom) => {
-  console.log('Chat room updated:', chatRoom);
-});
-
-connection.on('ReceiveDeletedChatRoom', (chatRoomId) => {
-  console.log('Chat room deleted:', chatRoomId);
-});
-
 connection.on('ReceiveTypingNotification', (user, isTyping) => {
   console.log(`${user.fullName} is ${isTyping ? 'typing...' : 'not typing'}`);
 });
 
-connection.on('ReceiveSystemMessage', (message) => {
-  console.log('System message:', message);
-  
+connection.on('ReceiveEmoji', (emoji) => {
+  console.log('Emoji received:', emoji);
 });
 
-// Function to start SignalR connection
+// Start SignalR connection with retry logic
 async function startSignalRConnection() {
-  if (connection.state === signalR.HubConnectionState.Connected) {
-    console.log('SignalR connection is already started.');
-    return;
+  if (
+    connection.state === signalR.HubConnectionState.Connected || 
+    connection.state === signalR.HubConnectionState.Connecting
+  ) {
+    console.log('SignalR connection is already started or in the process of starting.');
+    return Promise.resolve();
   }
 
   try {
     await connection.start();
     console.log('SignalR Connected.');
+    reconnectAttempts = 0;
+    return Promise.resolve();
   } catch (err) {
-    console.error('Error while starting SignalR connection:', err);
-    setTimeout(startSignalRConnection, 5000); // Retry after 5 seconds
+    reconnectAttempts++;
+    console.error(`Error while starting SignalR connection: ${err.message}`);
+
+    if (reconnectAttempts <= MAX_RECONNECT_ATTEMPTS) {
+      console.log(`Reconnecting... Attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS}`);
+      setTimeout(startSignalRConnection, 5000); // Retry after 5 seconds
+    } else {
+      console.error('Maximum reconnect attempts reached. Connection aborted.');
+    }
   }
 }
 
-// Handle connection close
+// Handle disconnection
 connection.onclose(async () => {
   console.warn('SignalR Disconnected. Attempting reconnection...');
-  await startSignalRConnection();
+  if (connection.state !== signalR.HubConnectionState.Connected) {
+    await startSignalRConnection();
+  }
 });
 
-// Export SignalR service
 export const signalRService = {
-  startConnection: startSignalRConnection,
+  startConnection: async () => {
+    if (
+      connection.state === signalR.HubConnectionState.Connected || 
+      connection.state === signalR.HubConnectionState.Connecting
+    ) {
+      console.log('SignalR connection is already started or in the process of starting.');
+      return Promise.resolve();
+    }
+    return startSignalRConnection();
+  },
 
-  sendMessage: async (user, message) => {
-    if (connection.state === signalR.HubConnectionState.Connected) {
-      await connection.invoke('SendMessage', { User: user, Content: message });
+  sendRoomMessage: async (formData) => {
+    const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/room/send-message`, {
+      method: "POST",
+      body: formData,
+    });
+  
+    if (!response.ok) {
+      console.error("Error sending room message with file:", response.statusText);
+      return;
+    }
+  
+    console.log("Room message sent successfully");
+  },  
+
+  getRoomMessages: async (chatRoomId) => {
+    const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/room/messages/${chatRoomId}`);
+    if (response.ok) {
+      return await response.json();
     } else {
-      console.error('Connection is not active. Cannot send message.');
+      console.error("Error fetching room messages:", response.statusText);
+      return [];
     }
   },
 
-  sendMessageWithFile: async (chatRoomId, message, file) => {
-    const formData = new FormData();
-    formData.append('ChatRoomId', chatRoomId);
-    formData.append('Message', message || '');
-
-    if (file) {
-      formData.append('file', file);
-    }
-
-    try {
-      const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/send`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        console.error('Error uploading message with file:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error in sendMessageWithFile:', error);
-    }
-  },
-
-  onReceiveMessage: (callback) => {
-    connection.on('ReceiveMessage', callback);
-  },
-
-  sendPrivateMessage: async (receiverUserId, message) => {
-    if (connection.state === signalR.HubConnectionState.Connected) {
-      await connection.invoke('SendPrivateMessage', {
-        ReceiverUserId: receiverUserId,
-        Message: message,
-      });
+  getPrivateMessages: async (senderId, receiverId) => {
+    const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/private/messages?senderId=${senderId}&receiverId=${receiverId}`);
+    if (response.ok) {
+      return await response.json();
     } else {
-      console.error('Connection is not active. Cannot send private message.');
-    }
-  },
-
-  joinRoom: async (roomName, userName) => {
-    if (connection.state === signalR.HubConnectionState.Connected) {
-      await connection.invoke('JoinRoom', { Room: roomName, User: userName });
-    } else {
-      console.error('Connection is not active. Cannot join room.');
+      console.error("Error fetching private messages:", response.statusText);
+      return [];
     }
   },
 
   sendTypingNotification: async (isTyping, receiverConnectionId) => {
-    if (connection.state === signalR.HubConnectionState.Connected) {
-      await connection.invoke('NotifyTyping', isTyping, receiverConnectionId);
-    } else {
-      console.error('Connection is not active. Cannot send typing notification.');
-    }
+    await connection.invoke('NotifyTyping', isTyping, receiverConnectionId);
   },
 
-  loadChatRooms: async () => {
-    if (connection.state === signalR.HubConnectionState.Connected) {
-      await connection.invoke('CallLoadChatData');
-    } else {
-      console.error('Connection is not active. Cannot load chat rooms.');
-    }
+  onReceiveMessage: (callback) => {
+    connection.on("ReceiveRoomMessage", callback);
+    connection.on("ReceivePrivateMessage", callback);
   },
 
-  getUserId: async () => {
-    if (connection.state === signalR.HubConnectionState.Connected) {
-      await connection.invoke('GetUserId');
-    } else {
-      console.error('Connection is not active. Cannot get user ID.');
-    }
-  },
-
-  sendNotificationToAll: async (message) => {
-    if (connection.state === signalR.HubConnectionState.Connected) {
-      await connection.invoke('SendNotificationToAll', message);
-    } else {
-      console.error('Connection is not active. Cannot send notification.');
-    }
-  },
-
-  getConnectedUsers: async () => {
-    if (connection.state === signalR.HubConnectionState.Connected) {
-      await connection.invoke('UpdateConnectedUsersList');
-    } else {
-      console.error('Connection is not active. Cannot get connected users.');
-    }
+  onReceiveEmoji: (callback) => {
+    connection.on("ReceiveEmoji", callback);
   },
 };
 
-// Start the connection
 startSignalRConnection();
 
 export default connection;

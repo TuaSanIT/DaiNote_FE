@@ -53,30 +53,42 @@
 
       <div class="chat-messages">
         <ul>
-          <li v-for="(msg, index) in messages" :key="index"
-            :class="msg.senderUserId === currentUserId ? 'message mine' : 'message theirs'">
-            <img v-if="msg.senderUserId !== currentUserId" :src="msg.avatarImage || defaultAvatar" alt="avatar"
+          <li v-for="(msg, index) in messages" :key="index" :class="{
+            'message': true,
+            'theirs': msg.senderUserId === currentUserId,
+            'mine': msg.senderUserId !== currentUserId
+          }">
+            <!-- Chỉ hiển thị ảnh đại diện khi tin nhắn không phải của người gửi -->
+            <img v-if="msg.senderUserId == currentUserId" :src="msg.avatarImage || defaultAvatar" alt="avatar"
               class="message-avatar" />
             <div class="message-content">
-              <span class="message-user">{{ msg.senderName }}</span>
+              <!-- Hiển thị tên người nhận (người gửi luôn là "You") -->
+              <span class="message-user">{{ msg.senderUserId === currentUserId ? msg.senderName : 'You' }}</span>
               <p v-if="msg.type === 'text'">{{ msg.content }}</p>
-              <a v-if="msg.type === 'file'" :href="msg.content" target="_blank" class="file-link">
-                {{ msg.fileName || 'Download File' }}
-              </a>
-              <img v-if="msg.type === 'image'" :src="msg.content" alt="sent image" class="sent-image" />
+              <div v-if="msg.type === 'image'" class="image-preview">
+                <img :src="msg.content" alt="sent image" class="sent-image" @click="openImagePreview(msg.content)" />
+              </div>
+              <div v-if="msg.type === 'file'" class="file-preview">
+                <a :href="msg.content" target="_blank" class="file-link">
+                  {{ msg.content.split('/').pop() }}
+                </a>
+              </div>
             </div>
-            <img v-if="msg.senderUserId === currentUserId" :src="msg.avatarImage || defaultAvatar" alt="avatar"
-              class="message-avatar" />
           </li>
         </ul>
       </div>
 
+      <div v-if="imagePreviewVisible" class="image-modal" @click="closeImagePreview">
+        <img :src="imagePreview" alt="Large image preview" class="modal-image" />
+        <button class="close-button" @click="closeImagePreview">✖</button>
+      </div>
 
       <div class="preview-container" v-if="imagePreview || filePreview">
-        <div v-if="imagePreview" class="preview-image">
-          <img :src="imagePreview" alt="Image Preview" />
+        <div v-if="imagePreview" class="image-preview">
+          <img :src="imagePreview" alt="Image Preview" class="preview-image" />
           <button @click="clearImage">✖</button>
         </div>
+
 
         <div v-if="filePreview" class="preview-file">
           <a :href="filePreview" target="_blank">{{ attachedFile.name }}</a>
@@ -90,22 +102,18 @@
         </button>
         <input type="file" ref="fileInput" @change="handleFileUpload" class="hidden-file-input" />
 
-        <button class="icon-button" @click="triggerImageInput">
-          <i class="fa fa-image"></i>
-        </button>
-        <input type="file" ref="imageInput" accept="image/*" @change="handleImageUpload" class="hidden-file-input" />
-
         <input v-model="message" placeholder="Type a message..." />
         <button @click="sendMessage">Send</button>
       </div>
+
     </div>
 
   </div>
 </template>
 
 <script>
-import connection from '@/services/signalr';
 import { signalRService } from '@/services/signalr';
+import connection from '@/services/signalr';
 
 export default {
   data() {
@@ -115,9 +123,10 @@ export default {
       newRoomName: '',
       currentRoomId: null,
       currentRoomName: '',
-      currentUserId: null,
+      currentUserId: localStorage?.getItem('userId') || '',
       currentUserName: '',
       currentFullName: '',
+      currentUserAvatar: null,
       message: '',
       messages: [],
       defaultAvatar: require("../../../public/default-avatar.png"),
@@ -125,72 +134,39 @@ export default {
       attachedImage: null,
       filePreview: null,
       imagePreview: null,
+      imagePreviewVisible: false,
       currentChatPrivateId: null,
     };
   },
   props: ['isSidebarOpen', "boardId"],
   methods: {
 
-    async loadChatRooms() {
-      try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chatroom/get-chat-rooms`);
-        if (response.ok) {
-          this.chatRooms = await response.json();
-        } else {
-          console.error('Failed to load chat rooms');
-        }
-      } catch (err) {
-        console.error('Error loading chat rooms:', err);
-      }
-    },
-
-    async loadUsers() {
+    async loadBoardUsers() {
       if (!this.boardId) {
         console.error("Board ID is missing!");
         return;
       }
+
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/board/${this.boardId}/users`);
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/Board/board/users?boardId=${this.boardId}`);
         if (response.ok) {
           const usersData = await response.json();
 
           const currentUserId = localStorage.getItem("userId");
 
           this.users = usersData
-            .filter(user => user.userId !== currentUserId)
-            .map((user) => ({
-              user_Id: user.userId,
+            .filter(user => user.id !== currentUserId)
+            .map(user => ({
+              user_Id: user.id,
               fullName: user.fullName,
               userName: user.userName,
-              avatarImage: user.avatarImage,
+              avatarImage: user.avatarImage || this.defaultAvatar,
             }));
         } else {
           console.error("Failed to load board users");
         }
       } catch (err) {
-        console.error("Error loading users:", err);
-      }
-    },
-
-    async createChatRoom() {
-      if (!this.newRoomName) return;
-
-      try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chatroom/create-chat-room`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: this.newRoomName }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          this.chatRooms.push(data.chatRoom);
-          this.newRoomName = '';
-        } else {
-          console.error('Failed to create chat room');
-        }
-      } catch (err) {
-        console.error('Error creating chat room:', err);
+        console.error("Error loading board users:", err);
       }
     },
 
@@ -205,7 +181,7 @@ export default {
       }
 
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/messages?roomId=${roomId}`);
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/room/messages/${roomId}`);
         if (response.ok) {
           this.messages = await response.json();
         } else {
@@ -218,36 +194,40 @@ export default {
 
     async startPrivateChat(userId) {
       const senderUserId = localStorage.getItem("userId");
+      if (!senderUserId) {
+        console.error("Sender ID is missing!");
+        return;
+      }
 
-      if (!senderUserId || !this.boardId) {
-        console.error("Missing sender ID or board ID.");
+      const selectedUser = this.users.find(user => user.user_Id === userId);
+      if (!selectedUser) {
+        console.error("Selected user not found!");
         return;
       }
 
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chatprivate/start`, {
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/private/start`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             senderUserId: senderUserId,
             receiverUserId: userId,
-            boardId: this.boardId,
           }),
         });
 
         const data = await response.json();
-        if (response.ok && data.success) {
-          this.currentChatPrivateId = data.chatPrivateId;
+        if (response.ok) {
           this.currentUserId = userId;
+          this.currentUserName = selectedUser.userName;
+          this.currentFullName = selectedUser.fullName;
+          this.currentUserAvatar = selectedUser.avatarImage;
 
-          const user = this.users.find((u) => u.user_Id === userId);
-          if (user) {
-            this.currentUserName = user.userName;
-            this.currentFullName = user.fullName;
-            this.currentUserAvatar = user.avatarImage;
-          }
+          console.log("Private chat started:", data);
 
-          await this.loadPrivateMessages(userId);
+          await signalRService.startConnection();
+          await connection.invoke("JoinPrivateRoom", senderUserId, userId);
+
+          this.startAutoLoadMessages(userId);
         } else {
           console.error("Error starting private chat:", data.message);
         }
@@ -256,232 +236,207 @@ export default {
       }
     },
 
+    startAutoLoadMessages(receiverUserId) {
+      this.loadPrivateMessages(receiverUserId);
+
+      this.autoLoadInterval = setInterval(() => {
+        this.loadPrivateMessages(receiverUserId);
+      }, 1000);
+    },
+
+    stopAutoLoadMessages() {
+      if (this.autoLoadInterval) {
+        clearInterval(this.autoLoadInterval);
+        this.autoLoadInterval = null;
+      }
+    },
+
+    leavePrivateChat() {
+      this.stopAutoLoadMessages();
+      this.currentUserId = null;
+      this.messages = [];
+    },
+
     async loadPrivateMessages(receiverUserId) {
       const senderUserId = localStorage.getItem("userId");
-
-      if (!senderUserId || !this.boardId) {
-        console.error("Missing sender ID or board ID.");
+      if (!senderUserId) {
+        console.error("Sender ID is missing!");
         return;
       }
 
       try {
-        const response = await fetch(
-          `${process.env.VUE_APP_API_BASE_URL}/api/chatprivate/messages?senderUserId=${senderUserId}&receiverUserId=${receiverUserId}&boardId=${this.boardId}`
-        );
-
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/private/messages?senderId=${senderUserId}&receiverId=${receiverUserId}`);
         if (response.ok) {
           const messagesData = await response.json();
 
+          // Xử lý dữ liệu tin nhắn, chỉ sử dụng thông tin người gửi
           this.messages = messagesData.map((msg) => {
-            const isSender = msg.senderUserId === senderUserId;
+            const sender = msg.senderUser || {}; // Người gửi
+
+            // Kiểm tra định dạng tệp (ảnh hoặc file)
+            const isImage = msg.imageChat && /\.(jpg|jpeg|png|gif)$/i.test(msg.imageChat);
+            const isFile = msg.imageChat && !isImage;
 
             return {
-              avatarImage: isSender
-                ? msg.senderUser.avatarImage || this.defaultAvatar
-                : msg.receiverUser.avatarImage || this.defaultAvatar,
-              content: msg.imageChat || msg.message,
-              type: msg.imageChat ? "image" : "text",
-              senderName: isSender ? "You" : msg.senderUser.fullName,
-              notificationDateTime: msg.notificationDateTime,
+              avatarImage: sender.avatarImage || this.defaultAvatar, // Ảnh đại diện người gửi
+              content: msg.imageChat || msg.message, // Nội dung (file URL, ảnh URL, hoặc text)
+              type: isImage ? "image" : isFile ? "file" : "text", // Phân loại
+              senderName: sender.fullName || "You", // Tên người gửi
+              senderUserId: msg.senderUserId, // ID người gửi
+              notificationDateTime: new Date(msg.notificationDateTime).toLocaleString(), // Thời gian gửi
             };
           });
 
-          console.log(`Messages loaded between ${senderUserId} and ${receiverUserId}`);
+          console.log("Loaded private messages:", this.messages);
+
+          // Cuộn xuống cuối danh sách tin nhắn sau khi load xong
+          this.$nextTick(() => {
+            this.scrollToBottom();
+          });
         } else {
-          console.error("Failed to load private messages");
+          console.error("Failed to load private messages:", response.statusText);
         }
       } catch (err) {
         console.error("Error loading private messages:", err);
       }
     },
 
-    triggerFileInput() {
-      this.$refs.fileInput.click();
-    },
-    handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.attachedFile = file;
-        this.filePreview = URL.createObjectURL(file);
-        console.log('Attached file:', file.name);
-      }
-    },
-    triggerImageInput() {
-      this.$refs.imageInput.click();
-    },
-    handleImageUpload(event) {
-      const image = event.target.files[0];
-      if (image) {
-        this.attachedImage = image;
-        this.imagePreview = URL.createObjectURL(image);
-        console.log('Attached image:', image.name);
-      }
-    },
-
     async sendMessage() {
-      if (!this.message && !this.attachedFile && !this.attachedImage) return;
-
-      const senderUserId = localStorage.getItem("userId");
-      if (!senderUserId || !this.currentUserId) {
-        console.error("Missing sender or receiver ID");
+      const senderId = localStorage.getItem("userId");
+      if (!senderId) {
+        console.error("Sender ID is missing!");
         return;
       }
 
-      const formData = new FormData();
-      formData.append("receiverUserId", this.currentUserId);
-      formData.append("boardId", this.boardId || "");
-      formData.append("message", this.message || "");
-
-      if (this.attachedFile) formData.append("file", this.attachedFile);
-      if (this.attachedImage) formData.append("file", this.attachedImage);
-
-      // Thêm tin nhắn tạm thời vào giao diện
-      const tempMessage = {
-        avatarImage: this.defaultAvatar,
-        content: this.message,
-        type: this.attachedImage ? "image" : "text",
-        senderName: "You",
-        notificationDateTime: new Date().toLocaleString(),
-      };
-      this.messages.push(tempMessage);
+      const messageContent = this.message || (this.attachedFile ? 'send' : '');
+      const messageType = this.attachedFile && this.attachedFile.type.startsWith('image/')
+        ? "image"
+        : (this.attachedFile ? "file" : "text");
 
       try {
-        // Gửi tin nhắn qua SignalR để real-time
-        await signalRService.sendPrivateMessage(this.currentUserId, this.message, senderUserId);
+        let attachmentUrl = null;
 
-        // Gửi tin nhắn qua API để lưu vào cơ sở dữ liệu
-        const response = await fetch("${process.env.VUE_APP_API_BASE_URL}/api/chatprivate/send", {
-          method: "POST",
-          headers: { "UserId": senderUserId },
-          body: formData,
-        });
+        // Prepare FormData to send both message and file (if any)
+        const formData = new FormData();
+        formData.append("SenderId", senderId);
+        formData.append("ReceiverId", this.currentUserId);
+        formData.append("Message", messageContent);
 
-        if (response.ok) {
-          const { privateChat } = await response.json();
-
-          // Cập nhật lại tin nhắn trên giao diện
-          this.messages = this.messages.map((msg) =>
-            msg === tempMessage
-              ? {
-                avatarImage: privateChat.senderUser.avatarImage || this.defaultAvatar,
-                content: privateChat.imageChat || privateChat.message,
-                type: privateChat.imageChat ? "image" : "text",
-                senderName: "You",
-                senderUserId: privateChat.senderUserId,
-                notificationDateTime: privateChat.notificationDateTime,
-              }
-              : msg
-          );
-        } else {
-          console.error("Error saving message to the database via API.");
+        if (this.attachedFile) {
+          formData.append("File", this.attachedFile);
         }
-      } catch (err) {
-        console.error("Error sending message:", err);
-      } finally {
-        // Dọn dẹp input và file sau khi gửi
-        this.message = "";
-        this.clearImage();
-        this.clearFile();
-      }
-    },
 
-    async uploadMedia(formData, endpoint, type) {
-      try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/${endpoint}`, {
+        const response = await fetch('${process.env.VUE_APP_API_BASE_URL}/api/chat/private/send-message', {
           method: 'POST',
           body: formData,
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          this.messages.push({
-            sender: 'You',
-            content: data.fileUrl || data.imageUrl,
-            type: type,
-            fileName: this.attachedFile?.name || null,
-          });
-        } else {
-          console.error(`Failed to upload ${type}`);
+        const data = await response.json();
+
+        if (data.ImageChat) {
+          attachmentUrl = data.ImageChat;
         }
+
+        // Start SignalR connection
+        await signalRService.startConnection();
+
+        // Send the private message via SignalR
+        await connection.invoke("SendPrivateMessage", senderId, this.currentUserId, messageContent, attachmentUrl, messageType);
+
+        console.log("Private message sent via SignalR");
+
+        // Prepare a temporary message for immediate display
+        const tempMessage = {
+          avatarImage: this.defaultAvatar, // Use default avatar (no sender info needed)
+          content: this.attachedFile && this.attachedFile.type.startsWith('image/') ? this.imagePreview : messageContent,
+          type: messageType,
+          senderName: "You",  // No sender name, just "You"
+          senderUserId: senderId,
+          receiverUserId: this.currentUserId,
+          notificationDateTime: new Date().toLocaleString(),
+        };
+
+        // Add the message to the UI
+        this.messages.push(tempMessage);
+
       } catch (err) {
-        console.error(`Error uploading ${type}:`, err);
+        console.error("Error sending message:", err);
+      }
+
+      // Clear the message input field and file preview after sending the message
+      this.message = "";
+      this.clearFile();
+    },
+
+    scrollToBottom() {
+      const messagesContainer = this.$el.querySelector(".chat-messages");
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
     },
 
-    async sendTextMessage() {
-      const payload = { message: this.message, chatRoomId: this.currentRoomId };
-      try {
-        await connection.invoke('SendMessage', payload);
-        this.messages.push({ sender: 'You', content: this.message, type: 'text' });
-        this.message = '';
-      } catch (err) {
-        console.error('Error sending message:', err);
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.attachedFile = file;
+
+        if (file.type.startsWith('image/')) {
+          this.imagePreview = URL.createObjectURL(file);
+        } else {
+          this.imagePreview = null;
+        }
+
+        this.filePreview = URL.createObjectURL(file);
       }
     },
 
-    async sendGroupMessage(payload) {
-      try {
-        await connection.invoke('SendMessage', payload);
-        this.messages.push({ sender: 'You', content: payload.message });
-      } catch (err) {
-        console.error('Error sending group message:', err);
-      }
-    },
-
-
-    async sendPrivateMessage(payload) {
-      try {
-        await connection.invoke('ReceivePrivateMessage', payload);
-        this.messages.push({ sender: 'You', content: payload.message });
-      } catch (err) {
-        console.error('Error sending private message:', err);
-      }
-    },
-
-    clearImage() {
-      this.attachedImage = null;
-      this.imagePreview = null;
-    },
     clearFile() {
       this.attachedFile = null;
       this.filePreview = null;
+      this.imagePreview = null;
     },
 
+    triggerFileInput() {
+      this.$refs.fileInput.click();
+    },
+    openImagePreview(imageUrl) {
+      this.imagePreview = imageUrl;
+      this.imagePreviewVisible = true;
+    },
+    closeImagePreview() {
+      this.imagePreviewVisible = false;
+      this.imagePreview = null;
+      this.attachedFile = null;
+    },
   },
+
   mounted() {
-    this.currentUserId = localStorage.getItem("userId");
-    console.log("Current User ID:", this.currentUserId);
-    signalRService.startConnection();
-    this.loadChatRooms();
-    this.loadUsers();
+    this.loadBoardUsers();
+    signalRService.startConnection().then(() => {
+      console.log("SignalR connection established");
 
-    connection.on('ReceiveMessage', (message) => {
-      console.log('New Message:', message);
+      // Đăng ký sự kiện nhận tin nhắn
+      connection.on('ReceivePrivateMessage', (message) => {
+        console.log('Private message received:', message);
 
-      this.messages.push({
-        sender: message.UserId === localStorage.getItem('userId') ? 'You' : message.UserId,
-        content: message.MessageType === 'text' ? message.Message : message.ImageChatRoom,
-        type: message.MessageType,
-        fileName: message.MessageType === 'file' ? message.ImageChatRoom.split('/').pop() : null,
+        const tempMessage = {
+          avatarImage: message.SenderAvatar || this.defaultAvatar,
+          content: message.ImageChat || message.Message,
+          type: message.ImageChat ? "image" : message.Message ? "text" : "file",
+          senderName: message.SenderName || "Unknown",
+          senderUserId: message.SenderUserId,
+          receiverUserId: message.ReceiverUserId,
+          notificationDateTime: new Date(message.NotificationDateTime).toLocaleString(),
+        };
+
+        this.messages.push(tempMessage);
       });
-    });
 
-
-    connection.on("ReceivePrivateMessage", (message) => {
-      console.log("Private message received:", message);
-
-      this.messages.push({
-        avatarImage: message.senderUserId === this.currentUserId
-          ? this.defaultAvatar
-          : this.currentUserAvatar,
-        content: message.message,
-        type: message.messageType || "text",
-        senderName: message.senderUserId === this.currentUserId ? "You" : message.senderName,
-        senderUserId: message.senderUserId,
-        notificationDateTime: message.notificationDateTime,
-      });
+    }).catch((err) => {
+      console.error("Error starting SignalR connection:", err);
     });
   },
+
 };
 </script>
 
@@ -665,11 +620,69 @@ export default {
   margin-top: 5px;
 }
 
+.image-preview {
+  margin-top: 10px;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.image-preview img {
+  cursor: pointer;
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 8px;
+}
+
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-image {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border: none;
+  padding: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #333;
+  border-radius: 50%;
+}
+
+.close-button:hover {
+  background-color: rgba(255, 255, 255, 1);
+}
+
+.file-preview {
+  margin-top: 10px;
+  background-color: #f1f1f1;
+  padding: 10px;
+  border-radius: 8px;
+}
+
 .file-link {
-  display: inline-block;
-  color: #0078ff;
+  color: #2600ff;
   text-decoration: none;
+  font-weight: bold;
   margin-top: 5px;
+  display: inline-block;
 }
 
 .file-link:hover {
@@ -687,24 +700,36 @@ export default {
 }
 
 .message.mine {
-  justify-content: flex-end;
-  background-color: #d1e7ff;
+  align-self: flex-end;
+  background-color: #f5f5f5;
+  flex-direction: row-reverse;
+}
+
+.message.mine .message-avatar {
+  margin-left: 10px;
+  margin-right: 0;
+  border: 2px solid #ddd;
 }
 
 .message.mine .message-content {
-  background: #0078ff;
-  color: white;
+  background: white;
+  color: black;
 }
 
 .message.theirs {
-  justify-content: flex-start;
-  background-color: #f5f5f5;
+  align-self: flex-start;
+  background-color: white;
+  flex-direction: row;
+}
+
+.message.theirs .message-avatar {
+  margin-right: 10px;
+  border: 2px solid #0066ff;
 }
 
 .message.theirs .message-content {
-  background: white;
-  /* Màu trắng */
-  color: black;
+  background: #4c9cf8;
+  color: white;
 }
 
 .message:hover {
