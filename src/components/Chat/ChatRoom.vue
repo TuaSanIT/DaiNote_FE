@@ -227,7 +227,7 @@ export default {
 
       this.autoLoadInterval = setInterval(() => {
         this.loadPrivateMessages(receiverUserId);
-      }, 1000);
+      }, 5000);
     },
 
     stopAutoLoadMessages() {
