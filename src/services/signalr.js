@@ -4,8 +4,8 @@ import * as signalR from '@microsoft/signalr';
 const connection = new signalR.HubConnectionBuilder()
   .withUrl(`${process.env.VUE_APP_API_BASE_URL}/chatHub`, {
     withCredentials: true,
-    skipNegotiation: true,
-    transport: signalR.HttpTransportType.WebSockets,
+    skipNegotiation: false,
+    transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling,
   })
   .configureLogging(signalR.LogLevel.Information)
   .build();
@@ -59,80 +59,128 @@ connection.on('ReceiveSystemMessage', (message) => {
   
 });
 
+// Function to start SignalR connection
 async function startSignalRConnection() {
+  if (connection.state === signalR.HubConnectionState.Connected) {
+    console.log('SignalR connection is already started.');
+    return;
+  }
+
   try {
     await connection.start();
     console.log('SignalR Connected.');
   } catch (err) {
     console.error('Error while starting SignalR connection:', err);
-    setTimeout(startSignalRConnection, 5000); 
+    setTimeout(startSignalRConnection, 5000); // Retry after 5 seconds
   }
 }
 
-connection.onclose(() => {
+// Handle connection close
+connection.onclose(async () => {
   console.warn('SignalR Disconnected. Attempting reconnection...');
-  startSignalRConnection();
+  await startSignalRConnection();
 });
 
+// Export SignalR service
 export const signalRService = {
   startConnection: startSignalRConnection,
 
   sendMessage: async (user, message) => {
-    await connection.invoke('SendMessage', { User: user, Content: message });
+    if (connection.state === signalR.HubConnectionState.Connected) {
+      await connection.invoke('SendMessage', { User: user, Content: message });
+    } else {
+      console.error('Connection is not active. Cannot send message.');
+    }
   },
+
   sendMessageWithFile: async (chatRoomId, message, file) => {
     const formData = new FormData();
-    formData.append("ChatRoomId", chatRoomId);
-    formData.append("Message", message || "");
+    formData.append('ChatRoomId', chatRoomId);
+    formData.append('Message', message || '');
 
     if (file) {
-      formData.append("file", file);
+      formData.append('file', file);
     }
-    const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/send`, {
-      method: "POST",
-      body: formData,
-    });
 
-    if (!response.ok) {
-      console.error("Error uploading message with file:", response.statusText);
+    try {
+      const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/send`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        console.error('Error uploading message with file:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error in sendMessageWithFile:', error);
     }
   },
 
   onReceiveMessage: (callback) => {
-    connection.on("ReceiveMessage", callback);
+    connection.on('ReceiveMessage', callback);
   },
+
   sendPrivateMessage: async (receiverUserId, message) => {
-    await connection.invoke('SendPrivateMessage', {
-      ReceiverUserId: receiverUserId,
-      Message: message,
-    });
+    if (connection.state === signalR.HubConnectionState.Connected) {
+      await connection.invoke('SendPrivateMessage', {
+        ReceiverUserId: receiverUserId,
+        Message: message,
+      });
+    } else {
+      console.error('Connection is not active. Cannot send private message.');
+    }
   },
 
   joinRoom: async (roomName, userName) => {
-    await connection.invoke('JoinRoom', { Room: roomName, User: userName });
+    if (connection.state === signalR.HubConnectionState.Connected) {
+      await connection.invoke('JoinRoom', { Room: roomName, User: userName });
+    } else {
+      console.error('Connection is not active. Cannot join room.');
+    }
   },
 
   sendTypingNotification: async (isTyping, receiverConnectionId) => {
-    await connection.invoke('NotifyTyping', isTyping, receiverConnectionId);
+    if (connection.state === signalR.HubConnectionState.Connected) {
+      await connection.invoke('NotifyTyping', isTyping, receiverConnectionId);
+    } else {
+      console.error('Connection is not active. Cannot send typing notification.');
+    }
   },
 
   loadChatRooms: async () => {
-    await connection.invoke('CallLoadChatData');
+    if (connection.state === signalR.HubConnectionState.Connected) {
+      await connection.invoke('CallLoadChatData');
+    } else {
+      console.error('Connection is not active. Cannot load chat rooms.');
+    }
   },
 
   getUserId: async () => {
-    await connection.invoke('GetUserId');
+    if (connection.state === signalR.HubConnectionState.Connected) {
+      await connection.invoke('GetUserId');
+    } else {
+      console.error('Connection is not active. Cannot get user ID.');
+    }
   },
 
   sendNotificationToAll: async (message) => {
-    await connection.invoke('SendNotificationToAll', message);
+    if (connection.state === signalR.HubConnectionState.Connected) {
+      await connection.invoke('SendNotificationToAll', message);
+    } else {
+      console.error('Connection is not active. Cannot send notification.');
+    }
   },
 
   getConnectedUsers: async () => {
-    await connection.invoke('UpdateConnectedUsersList');
+    if (connection.state === signalR.HubConnectionState.Connected) {
+      await connection.invoke('UpdateConnectedUsersList');
+    } else {
+      console.error('Connection is not active. Cannot get connected users.');
+    }
   },
 };
 
+// Start the connection
 startSignalRConnection();
 
 export default connection;
