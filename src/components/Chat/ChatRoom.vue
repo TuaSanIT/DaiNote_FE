@@ -206,7 +206,7 @@ export default {
       }
 
       try {
-        const response = await fetch(`http://localhost:5141/api/chat/private/start`, {
+        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/private/start`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
