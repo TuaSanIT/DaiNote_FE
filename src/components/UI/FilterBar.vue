@@ -18,7 +18,7 @@
     <button @click="downloadPdf" class="pdf-button">
       <i class="bi bi-filetype-pdf"></i>
     </button>
-    <button @click="triggerFileUpload" class="excel-button">
+    <!-- <button @click="triggerFileUpload" class="excel-button">
       <i class="bi bi-file-earmark-excel"></i>
     </button>
     <input
@@ -27,7 +27,19 @@
       style="display: none"
       accept=".xls,.xlsx"
       @change="importExcel"
+    /> -->
+
+    <button @click="showExcelPopup" class="excel-button">
+      <i class="bi bi-file-earmark-excel"></i>
+    </button>
+      <!-- Excel Popup -->
+    <ExcelPopUp
+      v-if="isExcelPopupVisible"
+      :templatePath="'/Excel_Template_DATA.xlsx'"
+      @fileSelected="importExcelFile"
+      @close="isExcelPopupVisible = false"
     />
+
   </div>
 </template>
 
@@ -35,14 +47,21 @@
 import { useToast } from "vue-toastification";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import ExcelPopUp from "./ExcelPopUp.vue";
 
 export default {
+  components: {
+    ExcelPopUp,
+  },
   props: ["boardId", "onFilter"],
   data() {
     return {
       selectedStatus: "",
       selectedAvailableCheck: "",
       emailFilter: false,
+
+      isExcelPopupVisible: false,
+      templateFilePath: "/Excel Template_DATA.xlsx"
     };
   },
   created() {
@@ -184,18 +203,50 @@ export default {
         console.error("Error generating PDF:", error);
       }
     },
-    triggerFileUpload() {
-      this.$refs.excelInput.click();
+    // triggerFileUpload() {
+    //   this.$refs.excelInput.click();
+    // },
+    // async importExcel(event) {
+    //   const toast = useToast();
+
+    //   if (!event.target.files || event.target.files.length === 0) {
+    //     toast.error("No file selected.");
+    //     return;
+    //   }
+
+    //   const file = event.target.files[0];
+    //   const formData = new FormData();
+    //   formData.append("file", file);
+
+    //   try {
+    //     const response = await fetch(
+    //       `${process.env.VUE_APP_API_BASE_URL}/api/Board/${this.boardId}/import`,
+    //       {
+    //         method: "POST",
+    //         body: formData,
+    //       }
+    //     );
+
+    //     if (response.ok) {
+    //       toast.success("Import successful.");
+    //       this.$emit("refresh");
+    //     } else if (response.status === 400) {
+    //       toast.error("This board cannot import an Excel file.");
+    //     } else {
+    //       throw new Error("Unexpected error during import.");
+    //     }
+    //   } catch (error) {
+    //     console.error("Error importing Excel file:", error);
+    //     toast.error("Failed to import Excel file.");
+    //   } finally {
+    //     event.target.value = "";
+    //   }
+    // },
+    showExcelPopup() {
+      this.isExcelPopupVisible = true;
     },
-    async importExcel(event) {
+    async importExcelFile(file) {
       const toast = useToast();
-
-      if (!event.target.files || event.target.files.length === 0) {
-        toast.error("No file selected.");
-        return;
-      }
-
-      const file = event.target.files[0];
       const formData = new FormData();
       formData.append("file", file);
 
@@ -219,8 +270,6 @@ export default {
       } catch (error) {
         console.error("Error importing Excel file:", error);
         toast.error("Failed to import Excel file.");
-      } finally {
-        event.target.value = "";
       }
     },
   },

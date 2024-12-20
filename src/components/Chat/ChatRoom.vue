@@ -20,8 +20,13 @@
             <span class="user-fullname">{{ user.fullName }}</span>
             <span class="user-username">@{{ user.userName }}</span>
           </div>
+          <!-- Hiển thị trạng thái Auto Load -->
+          <button class="toggle-auto-load">
+            {{ currentUserId === user.user_Id && isAutoLoading ? "Stop" : "Start" }}
+          </button>
         </li>
       </ul>
+
     </div>
 
     <!-- Chat UI -->
@@ -122,6 +127,7 @@ export default {
       imagePreview: null,
       imagePreviewVisible: false,
       currentChatPrivateId: null,
+      isAutoLoading: false,
     };
   },
   props: ['isSidebarOpen', "boardId"],
@@ -179,12 +185,20 @@ export default {
     },
 
     async startPrivateChat(userId) {
+      if (this.currentUserId === userId && this.isAutoLoading) {
+        this.stopAutoLoadMessages();
+        this.isAutoLoading = false;
+        console.log("Auto load stopped");
+        return;
+      }
+
       const senderUserId = localStorage.getItem("userId");
       if (!senderUserId) {
         console.error("Sender ID is missing!");
         return;
       }
 
+      this.currentUserId = userId;
       const selectedUser = this.users.find(user => user.user_Id === userId);
       if (!selectedUser) {
         console.error("Selected user not found!");
@@ -192,7 +206,7 @@ export default {
       }
 
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_BASE_URL}/api/chat/private/start`, {
+        const response = await fetch(`http://localhost:5141/api/chat/private/start`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -214,6 +228,7 @@ export default {
           await connection.invoke("JoinPrivateRoom", senderUserId, userId);
 
           this.startAutoLoadMessages(userId);
+          this.isAutoLoading = true;
         } else {
           console.error("Error starting private chat:", data.message);
         }
@@ -223,11 +238,20 @@ export default {
     },
 
     startAutoLoadMessages(receiverUserId) {
-      this.loadPrivateMessages(receiverUserId);
-
-      this.autoLoadInterval = setInterval(() => {
+      if (this.isAutoLoading) {
+        this.stopAutoLoadMessages();
+        this.isAutoLoading = false;
+        console.log("Auto load stopped");
+      } else {
         this.loadPrivateMessages(receiverUserId);
-      }, 2000);
+
+        this.autoLoadInterval = setInterval(() => {
+          this.loadPrivateMessages(receiverUserId);
+        }, 2000);
+
+        this.isAutoLoading = true;
+        console.log("Auto load started");
+      }
     },
 
     stopAutoLoadMessages() {

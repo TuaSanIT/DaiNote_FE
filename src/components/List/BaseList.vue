@@ -7,17 +7,6 @@
   <div class="main" :class="{ 'collapsed-sidebar': !isSidebarOpen }">
     <div class="list-container">
       <ul class="list">
-        <!-- display task -->
-        <!-- <list-item 
-          v-for="list in lists"
-          :key="list.id"
-          :title="list.title" 
-          :status="list.status"
-          :tasks="list.taskInside" 
-          :listId="list.id"
-          
-          :data-id="list.id"
-          @listDeleted="removeListFromUI"/> -->
 
         <draggable
           v-model="filteredLists"
@@ -94,7 +83,6 @@ import axios from "axios";
 import draggable from "vuedraggable";
 import FilterBar from "../UI/FilterBar.vue";
 import { useToast } from "vue-toastification";
-// import { co } from "@fullcalendar/core/internal-common";
 
 export default {
   components: {
